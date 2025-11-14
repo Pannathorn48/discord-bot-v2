@@ -24,7 +24,7 @@ export class CreateTaskEvent implements IEvent, IModal {
     this.createTaskService = service;
   }
   getModalID(): string {
-    return "createTaskModal";
+    return this.getSlashCommand().toJSON().name;
   }
   async getModal(...args: any[]): Promise<ModalBuilder> {
     if (!args || args.length != 1) {
@@ -48,9 +48,9 @@ export class CreateTaskEvent implements IEvent, IModal {
                 value: p.id as string,
                 description: p.description || "No description",
               };
-            }),
+            })
           )
-          .setPlaceholder("Select a project for the task"),
+          .setPlaceholder("Select a project for the task")
       );
 
     const taskNameInput = new LabelBuilder()
@@ -60,7 +60,7 @@ export class CreateTaskEvent implements IEvent, IModal {
           .setCustomId("task-name")
           .setStyle(TextInputStyle.Short)
           .setPlaceholder("Enter the task name")
-          .setRequired(true),
+          .setRequired(true)
       );
 
     const taskDescriptionInput = new LabelBuilder()
@@ -70,7 +70,7 @@ export class CreateTaskEvent implements IEvent, IModal {
           .setCustomId("task-description")
           .setStyle(TextInputStyle.Paragraph)
           .setPlaceholder("Enter the task description")
-          .setRequired(false),
+          .setRequired(false)
       );
 
     const taskDeadlineInput = new LabelBuilder()
@@ -80,14 +80,14 @@ export class CreateTaskEvent implements IEvent, IModal {
           .setCustomId("task-deadline")
           .setStyle(TextInputStyle.Short)
           .setPlaceholder("Enter the task deadline (YYYY-MM-DD)")
-          .setRequired(false),
+          .setRequired(false)
       );
 
     modal.addLabelComponents(
       projectSelectedInput,
       taskNameInput,
       taskDescriptionInput,
-      taskDeadlineInput,
+      taskDeadlineInput
     );
     return modal;
   }
@@ -113,7 +113,7 @@ export class CreateTaskEvent implements IEvent, IModal {
   }
   getSlashCommand() {
     return new SlashCommandBuilder()
-      .setName("create-task")
+      .setName("new-task")
       .setDescription("Create a new task");
   }
 }

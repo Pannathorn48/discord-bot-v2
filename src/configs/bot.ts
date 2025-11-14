@@ -48,19 +48,25 @@ export class Bot {
           return;
         }
 
-        // Handle modal submissions
         if (interaction.isModalSubmit()) {
-          const ev = this.handler.modalHandlers.get(interaction.customId);
+          const ev = this.handler.modalHandler.get(interaction.customId);
           if (!ev) return;
           await ev.handleModalSubmit(interaction as ModalSubmitInteraction);
           return;
         }
 
-        return;
+        if (interaction.isAutocomplete()) {
+          const ev = this.handler.autoCompleteHandler.get(
+            interaction.commandName
+          );
+          if (!ev) return;
+          await ev.handleAutocomplete(interaction);
+          return;
+        }
       } catch (err: any) {
         if (err instanceof DiscordBotError) {
           console.warn(
-            `Handled DiscordBotError: ${err.title} - ${err.message}`,
+            `Handled DiscordBotError: ${err.title} - ${err.message}`
           );
         } else {
           console.error("Error handling interaction:", err);

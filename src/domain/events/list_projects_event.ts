@@ -28,7 +28,7 @@ export default class ListProjectsEvent implements IEvent {
         embeds: [
           ErrorCard.getErrorCard(
             "Guild required",
-            "This command must be run in a server (not in DMs).",
+            "This command must be run in a server (not in DMs)."
           ),
         ],
         flags: MessageFlags.Ephemeral,
@@ -44,7 +44,7 @@ export default class ListProjectsEvent implements IEvent {
           embeds: [
             InfoCard.getInfoCard(
               "No projects found",
-              "There are no projects registered for this server.",
+              "There are no projects registered for this server."
             ),
           ],
         });
@@ -55,7 +55,7 @@ export default class ListProjectsEvent implements IEvent {
       const lines = projects.map((p) => {
         const dl = p.deadline ? dayjs(p.deadline).format("DD/MM/YYYY") : "-";
         const desc = p.description ? ` — ${p.description}` : "";
-        return `**${p.name}** (Role: <@&${p.role_id}>) — Deadline: ${dl}${desc}`;
+        return `**${p.name}** (Role: <@&${p.roleId}>) — Deadline: ${dl}${desc}`;
       });
 
       const chunkSize = 10; // avoid exceeding embed limits; group into chunks if many
@@ -93,7 +93,7 @@ export default class ListProjectsEvent implements IEvent {
         embeds: [
           ErrorCard.getErrorCard(
             "Failed to list projects",
-            "Check server logs for details.",
+            "Check server logs for details."
           ),
         ],
         flags: MessageFlags.Ephemeral,

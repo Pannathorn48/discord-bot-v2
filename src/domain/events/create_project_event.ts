@@ -26,7 +26,7 @@ export class CreateProjectEvent implements IEvent, IModal {
   }
 
   getModalID(): string {
-    return "createProjectModal";
+    return this.getSlashCommand().toJSON().name;
   }
   async handleInteraction(interaction: DiscordInteraction): Promise<void> {
     if (interaction.isChatInputCommand()) {
@@ -54,7 +54,7 @@ export class CreateProjectEvent implements IEvent, IModal {
         embeds: [
           ErrorCard.getErrorCard(
             "Guild Not Found",
-            "This interaction was not sent in a guild.",
+            "This interaction was not sent in a guild."
           ),
         ],
         flags: MessageFlags.Ephemeral,
@@ -66,7 +66,7 @@ export class CreateProjectEvent implements IEvent, IModal {
       interaction.fields.getTextInputValue("project-role-name");
     const deadline = interaction.fields.getTextInputValue("deadline");
     const projectDescription = interaction.fields.getTextInputValue(
-      "project-description",
+      "project-description"
     );
 
     const req: CreateProjectRequest = {
@@ -91,7 +91,7 @@ export class CreateProjectEvent implements IEvent, IModal {
         embeds: [
           ErrorCard.getErrorCard(
             "Error Creating Project",
-            "An unknown error occurred.",
+            "An unknown error occurred."
           ),
         ],
         flags: MessageFlags.Ephemeral,
@@ -103,7 +103,7 @@ export class CreateProjectEvent implements IEvent, IModal {
       embeds: [
         SuccessCard.getSuccessCard(
           "Project Created",
-          `**Name:** ${projectName}\n**Role:** ${projectRoleName}\n**Deadline:** ${deadline}`,
+          `**Name:** ${projectName}\n**Role:** ${projectRoleName}\n**Deadline:** ${deadline}`
         ),
       ],
     });
@@ -162,7 +162,7 @@ export class CreateProjectEvent implements IEvent, IModal {
       projectNameLabel,
       projectDescriptionLabel,
       projectRoleLabel,
-      deadlineLabel,
+      deadlineLabel
     );
 
     return modal;

@@ -3,22 +3,119 @@ import {
   IEvent,
   IModal,
 } from "@/domain/reuse/event_interface";
-import { ModalBuilder, ModalSubmitInteraction } from "discord.js";
+import {
+  ChatInputCommandInteraction,
+  LabelBuilder,
+  ModalBuilder,
+  ModalSubmitInteraction,
+  SlashCommandBuilder,
+  StringSelectMenuBuilder,
+  TextInputBuilder,
+  TextInputStyle,
+} from "discord.js";
+import { CreateGroupService } from "../services/create_group_service";
 
 export class CreateGroupEvent implements IEvent, IModal {
+  private createGroupService: CreateGroupService;
+
+  constructor(service: CreateGroupService) {
+    this.createGroupService = service;
+  }
   getModalID(): string {
-    return "createGroupModal";
+    return this.getSlashCommand().toJSON().name;
   }
-  getModal(...args: any[]): Promise<ModalBuilder> {
-    throw new Error("Method not implemented.");
+  async getModal(...args: any[]): Promise<ModalBuilder> {
+    if (args.length != 1 || !args[0]) {
+      throw new Error("Invalid arguments for getModal");
+    }
+    const modal = new ModalBuilder()
+      .setCustomId(this.getModalID())
+      .setTitle("Create New Group");
+
+    const project = await this.createGroupService.getProjectsInGuild(args[0]);
+
+    const projectSelectedInput = new LabelBuilder()
+      .setLabel("Select Project")
+      .setDescription("Choose a project for the group")
+      .setStringSelectMenuComponent(
+        new StringSelectMenuBuilder()
+          .setCustomId("project-selected")
+          .setRequired(true)
+          .addOptions(
+            project.map((p) => {
+              return {
+                label: p.name,
+                value: p.id as string,
+                description: p.description || "No description",
+              };
+            })
+          )
+      );
+
+    const groupName = new LabelBuilder()
+      .setLabel("Group Name")
+      .setDescription("Enter the name of the group")
+      .setTextInputComponent(
+        new TextInputBuilder()
+          .setCustomId("group-name")
+          .setStyle(TextInputStyle.Short)
+          .setPlaceholder("Enter group name")
+          .setRequired(true)
+      );
+
+    const groupDescription = new LabelBuilder()
+      .setLabel("Group Description")
+      .setDescription("Enter a brief description of the group")
+      .setTextInputComponent(
+        new TextInputBuilder()
+          .setCustomId("group-description")
+          .setStyle(TextInputStyle.Paragraph)
+          .setPlaceholder("Enter group description")
+          .setRequired(false)
+      );
+
+    const groupRoleName = new LabelBuilder()
+      .setLabel("Group Role Name")
+      .setDescription("Enter the role name for the group")
+      .setTextInputComponent(
+        new TextInputBuilder()
+          .setCustomId("group-role-name")
+          .setStyle(TextInputStyle.Short)
+          .setPlaceholder("e.g. @Developers")
+          .setRequired(false)
+      );
+
+    modal.addLabelComponents(
+      projectSelectedInput,
+      groupName,
+      groupDescription,
+      groupRoleName
+    );
+    return modal;
   }
-  handleModalSubmit(interaction: ModalSubmitInteraction): Promise<void> {
-    throw new Error("Method not implemented.");
+  async handleModalSubmit(interaction: ModalSubmitInteraction): Promise<void> {
+    await interaction.reply({
+      content: "Group creation is not yet implemented.",
+    });
   }
-  handleInteraction(interaction: DiscordInteraction): Promise<void> {
-    throw new Error("Method not implemented.");
+  async handleInteraction(interaction: DiscordInteraction): Promise<void> {
+    if (interaction.isChatInputCommand()) {
+      const chat = interaction as ChatInputCommandInteraction;
+      await chat.showModal(await this.getModal(interaction.guildId));
+      return;
+    }
+
+    if (interaction.isModalSubmit()) {
+      await this.handleModalSubmit(interaction as ModalSubmitInteraction);
+      return;
+    }
+
+    console.log("Unhandled interaction type in CreateGroupEvent");
+    return;
   }
   getSlashCommand() {
-    throw new Error("Method not implemented.");
+    return new SlashCommandBuilder()
+      .setName("new-group")
+      .setDescription("Create a new group");
   }
 }

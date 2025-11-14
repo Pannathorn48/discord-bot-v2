@@ -22,3 +22,8 @@ export interface IModal {
   getModal(...args: any[]): Promise<ModalBuilder>;
   handleModalSubmit(interaction: ModalSubmitInteraction): Promise<void>;
 }
+
+export interface IAutocomplete {
+  getAutocompleteID(): string;
+  handleAutocomplete(interaction: AutocompleteInteraction): Promise<void>;
+}
