@@ -5,7 +5,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "tsx watch ./src ",
+    "dev": "tsx watch ./src",
     "generate": "prisma generate",
     "push": "prisma db push",
     "studio": "prisma studio",

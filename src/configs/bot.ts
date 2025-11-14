@@ -1,4 +1,5 @@
 import { Client, Events, GatewayIntentBits, ModalSubmitInteraction, REST, Routes } from "discord.js";
+import { DiscordBotError } from "@/domain/reuse/discord_error";
 import { Config } from "@/configs/config";
 import { EventHandler } from "@/configs/handler";
 
@@ -47,11 +48,15 @@ export class Bot {
           await ev.handleModalSubmit(interaction as ModalSubmitInteraction);
           return;
         }
+        
 
-        // Ignore other interaction types for now
         return;
-      } catch (err) {
-        console.error("Error handling interaction:", err);
+      } catch (err: any) {
+        if (err instanceof DiscordBotError) {
+          console.warn(`Handled DiscordBotError: ${err.title} - ${err.message}`);
+        } else {
+          console.error("Error handling interaction:", err);
+        }
         try {
           if (interaction.isRepliable()) {
             if (interaction.replied || interaction.deferred) {

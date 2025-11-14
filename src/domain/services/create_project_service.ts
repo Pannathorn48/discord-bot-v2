@@ -1,3 +1,4 @@
+
 import { CreateProjectRequest } from "@/domain/requests/project_requests";
 import { Bot } from "@/configs/bot";
 import { Guild, PermissionFlagsBits, Role } from "discord.js";
@@ -10,31 +11,31 @@ export class CreateProjectService {
     constructor(projectDatabase: ProjectDatabase) {
         this.projectDatabase = projectDatabase;
     }
+
     async createProject(req: CreateProjectRequest): Promise<void> {
-        try{
+        try {
             const deadline = await this.createDate(req.deadline);
             await this.createRoleInGuild(req.guildId, req.projectRoleName);
             await this.projectDatabase.createProject({
                 name: req.projectName,
-                guild_id: req.guildId,
-                role_name: req.projectRoleName,
+                guildId: req.guildId,
+                roleName: req.projectRoleName,
                 description: req.projectDescription || null,
                 deadline: deadline,
-            })
-            
-        }catch(e){
+            });
+        } catch (e: any) {
             if (e instanceof DiscordBotError) {
+                console.warn(`Handled DiscordBotError: ${e.title} - ${e.message}`);
                 throw e;
             }
+
             console.error("Error creating project role:", e);
+            throw e;
         }
-
-        return;
-
     }
 
-    private async createRoleInGuild(guildId : string, roleName : string) : Promise<Role> {
-          const client = Bot.getClientInstance();
+    private async createRoleInGuild(guildId: string, roleName: string): Promise<Role> {
+        const client = Bot.getClientInstance();
         if (!client) {
             throw new Error("Discord client not initialized");
         }
@@ -51,28 +52,32 @@ export class CreateProjectService {
                         PermissionFlagsBits.ViewChannel,
                         PermissionFlagsBits.SendMessages,
                         PermissionFlagsBits.ReadMessageHistory,
-                    ]
+                    ],
                 });
 
                 return created;
             }
 
-            throw new DiscordBotError("Role Already Exists",`The role with name ${roleName} already exists in the guild.`);
-        } catch (err) {
-            console.error("Failed to create or fetch role:", err);
+            throw new DiscordBotError("Role Already Exists", `The role <@&${existing.id}> already exists in the guild.`);
+        } catch (err: any) {
+            if (err instanceof DiscordBotError) {
+                console.warn(`Handled DiscordBotError in CreateProjectService: ${err.title} - ${err.message}`);
+            } else {
+                console.error("Failed to create or fetch role:", err);
+            }
             throw err;
         }
     }
 
-    private async createDate(deadlineStr : string) : Promise<Date>{
+    private async createDate(deadlineStr: string): Promise<Date> {
         const deadlineDate = DateFromString(deadlineStr);
         if (!deadlineDate) {
-            throw new DiscordBotError("Invalid date format","Please use DD/MM/YYYY.");
+            throw new DiscordBotError("Invalid date format", "Please use DD/MM/YYYY.");
         }
 
-        if (deadlineDate.isBefore(Date.now())){
-            throw new DiscordBotError("Invalid deadline","The deadline must be a future date.");
-        };   
+        if (deadlineDate.isBefore(Date.now())) {
+            throw new DiscordBotError("Invalid deadline", "The deadline must be a future date.");
+        }
         return deadlineDate.toDate();
     }
 }

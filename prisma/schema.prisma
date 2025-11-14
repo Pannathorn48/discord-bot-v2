@@ -13,11 +13,17 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+enum PrjectStatus {
+  OPEN
+  DONE
+  CLOSED
+}
 
 model Project {
   id          String   @id @default(cuid())
   name        String
   guild_id    String
+  status      PrjectStatus @default(OPEN)
   role_name   String
   description String?
   deadline    DateTime

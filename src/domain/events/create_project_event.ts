@@ -28,7 +28,7 @@ export class CreateProjectEvent implements IEvent , IModal {
   async handleInteraction(interaction: DiscordInteraction): Promise<void> {
     if (interaction.isChatInputCommand()) {
       const chat = interaction as ChatInputCommandInteraction;
-      await chat.showModal(this.getModal());
+      await chat.showModal(await this.getModal());
       return;
     }
 
@@ -98,7 +98,7 @@ export class CreateProjectEvent implements IEvent , IModal {
       .setDescription("Create a new project (opens a modal)");
   }
 
-  getModal() : ModalBuilder{
+  async getModal() : Promise<ModalBuilder>{
     const modal = new ModalBuilder()
       .setCustomId(this.getModalID())
       .setTitle("Create New Project");

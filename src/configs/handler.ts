@@ -7,6 +7,8 @@ import { IModal } from "@/domain/reuse/modal_interface";
 import { CreateProjectService } from "@/domain/services/create_project_service";
 import { PrismaClient } from "@/generated/prisma/client";
 import { ProjectDatabase } from "@/domain/databases/project_database";
+import { CreateTaskEvent } from "@/domain/events/create_task_event";
+import { CreateTaskService } from "@/domain/services/create_task_service";
 
 export class EventHandler {
   private static instance: EventHandler | null = null;
@@ -26,7 +28,11 @@ export class EventHandler {
 
     const listProjectsEvent = new ListProjectsEvent(projectDatabase);
     const deleteRoleEvent = new DeleteRoleEvent();
-    // Use the command JSON name to key the handler map so lookups by interaction.commandName work
+    
+
+    const createTaskService = new CreateTaskService(projectDatabase);
+    const createTaskEvent = new CreateTaskEvent(createTaskService);
+
     this.handler.set(pingEvent.getSlashCommand().toJSON().name, pingEvent);
     this.handler.set(
       createProjectEvent.getSlashCommand().toJSON().name,
@@ -34,9 +40,11 @@ export class EventHandler {
     );
     this.handler.set(listProjectsEvent.getSlashCommand().toJSON().name, listProjectsEvent);
     this.handler.set(deleteRoleEvent.getSlashCommand().toJSON().name, deleteRoleEvent);
+    this.handler.set(createTaskEvent.getSlashCommand().toJSON().name, createTaskEvent);
 
     // Register modal handlers
     this.modalHandlers.set(createProjectEvent.getModalID(), createProjectEvent);
+    this.modalHandlers.set(createTaskEvent.getModalID(), createTaskEvent);
   }
 
   public static getInstance(): EventHandler {

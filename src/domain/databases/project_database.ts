@@ -1,5 +1,5 @@
 import { PrismaClient } from "@/generated/prisma/client";
-import { CreateProjectRequest } from "../requests/project_requests";
+import { CreateProjectDatabaseRequest, CreateProjectRequest } from "../requests/project_requests";
 
 export interface Project {
     id?: string;
@@ -29,13 +29,13 @@ export class ProjectDatabase {
         return project;
     }
 
-    async createProject(req : Project){
+    async createProject(req : CreateProjectDatabaseRequest){
         const project = await this.prisma.project.create({
             data: {
                 name: req.name,
-                guild_id: req.guild_id,
-                role_name: req.role_name,
-                description: req.description,
+                guild_id: req.guildId,
+                role_name: req.roleName,
+                description: req.description || null,
                 deadline: req.deadline
             }
         });

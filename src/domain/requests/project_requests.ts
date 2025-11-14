@@ -7,3 +7,11 @@ export interface CreateProjectRequest{
     projectRoleName : string;
     deadline : string;
 }
+
+export interface CreateProjectDatabaseRequest{
+    guildId : string;
+    name : string;
+    description : string | null;
+    roleName : string;
+    deadline : Date;
+}
