@@ -5,7 +5,7 @@ export interface Project {
     id?: string;
     name: string;
     guild_id: string;
-    role_name: string;
+    role_id: string;
     description : string | null;
     deadline: Date;
     createdAt?: Date;
@@ -34,7 +34,7 @@ export class ProjectDatabase {
             data: {
                 name: req.name,
                 guild_id: req.guildId,
-                role_name: req.roleName,
+                role_id: req.roleId,
                 description: req.description || null,
                 deadline: req.deadline
             }

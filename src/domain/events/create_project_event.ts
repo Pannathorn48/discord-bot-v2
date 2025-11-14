@@ -89,7 +89,6 @@ export class CreateProjectEvent implements IEvent , IModal {
 
     await interaction.reply({
       embeds: [SuccessCard.getSuccessCard("Project Created",`**Name:** ${projectName}\n**Role:** ${projectRoleName}\n**Deadline:** ${deadline}`)],
-      flags : MessageFlags.Ephemeral
     });
   }
   getSlashCommand() {

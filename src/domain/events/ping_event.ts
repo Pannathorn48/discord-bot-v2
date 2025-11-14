@@ -28,7 +28,6 @@ export default class PingEvent implements IEvent {
     }
     await interaction.reply({
       content: "Pong!" + (message ? ` You said: ${message}` : ""),
-      flags: MessageFlags.Ephemeral,
     });
   }
   getSlashCommand(): any {

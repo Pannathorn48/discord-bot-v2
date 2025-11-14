@@ -24,7 +24,7 @@ model Project {
   name        String
   guild_id    String
   status      PrjectStatus @default(OPEN)
-  role_name   String
+  role_id     String
   description String?
   deadline    DateTime
   createdAt   DateTime @default(now())

@@ -42,7 +42,6 @@ export default class ListProjectsEvent implements IEvent {
       if (!projects || projects.length === 0) {
         await chat.reply({
           embeds: [InfoCard.getInfoCard("No projects found", "There are no projects registered for this server.")],
-          flags: MessageFlags.Ephemeral,
         });
         return;
       }
@@ -51,7 +50,7 @@ export default class ListProjectsEvent implements IEvent {
       const lines = projects.map((p) => {
         const dl = p.deadline ? dayjs(p.deadline).format("DD/MM/YYYY") : "-";
         const desc = p.description ? ` — ${p.description}` : "";
-        return `**${p.name}** (Role: ${p.role_name}) — Deadline: ${dl}${desc}`;
+        return `**${p.name}** (Role: <@&${p.role_id}>) — Deadline: ${dl}${desc}`;
       });
 
       const chunkSize = 10; // avoid exceeding embed limits; group into chunks if many
@@ -67,7 +66,6 @@ export default class ListProjectsEvent implements IEvent {
             { name: `Projects (${projects.length})`, value: chunks[0] ?? "", inline: false },
           ]),
         ],
-        flags: MessageFlags.Ephemeral,
       });
 
       // Send additional follow-ups if there are more chunks
@@ -78,7 +76,6 @@ export default class ListProjectsEvent implements IEvent {
               { name: `More projects`, value: chunks[i] ?? "", inline: false },
             ]),
           ],
-          flags: MessageFlags.Ephemeral,
         });
       }
     } catch (err) {

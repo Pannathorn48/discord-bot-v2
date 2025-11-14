@@ -12,6 +12,6 @@ export interface CreateProjectDatabaseRequest{
     guildId : string;
     name : string;
     description : string | null;
-    roleName : string;
+    roleId : string;
     deadline : Date;
 }

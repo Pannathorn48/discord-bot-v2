@@ -15,11 +15,11 @@ export class CreateProjectService {
     async createProject(req: CreateProjectRequest): Promise<void> {
         try {
             const deadline = await this.createDate(req.deadline);
-            await this.createRoleInGuild(req.guildId, req.projectRoleName);
+            const role = await this.createRoleInGuild(req.guildId, req.projectRoleName);
             await this.projectDatabase.createProject({
                 name: req.projectName,
                 guildId: req.guildId,
-                roleName: req.projectRoleName,
+                roleId: role.id,
                 description: req.projectDescription || null,
                 deadline: deadline,
             });
