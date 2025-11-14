@@ -6,32 +6,32 @@ export class ErrorCard {
     const embed = new EmbedBuilder()
       .setTitle("❌ " + title)
       .setDescription(description)
-      .setColor(0xFF3B30) // Red color
+      .setColor(0xff3b30) // Red color
       .setTimestamp()
-      .setFooter({ 
-        text: "Please retry again • Error occurred" 
+      .setFooter({
+        text: "Please retry again • Error occurred",
       });
 
     return embed;
   }
 
-  static getErrorCardFromError(error : DiscordBotError) : EmbedBuilder {
+  static getErrorCardFromError(error: DiscordBotError): EmbedBuilder {
     return this.getErrorCard(error.title, error.message);
   }
 }
 
 export class SuccessCard {
   static getSuccessCard(
-    title: string, 
-    description?: string, 
-    fields?: EmbedField[]
+    title: string,
+    description?: string,
+    fields?: EmbedField[],
   ): EmbedBuilder {
     const embed = new EmbedBuilder()
       .setTitle("✅ " + title)
-      .setColor(0x34C759) // Green color
+      .setColor(0x34c759) // Green color
       .setTimestamp()
-      .setFooter({ 
-        text: "Operation completed successfully" 
+      .setFooter({
+        text: "Operation completed successfully",
       });
 
     if (description) {
@@ -48,16 +48,16 @@ export class SuccessCard {
 
 export class InfoCard {
   static getInfoCard(
-    title: string, 
-    description?: string, 
-    fields?: EmbedField[]
+    title: string,
+    description?: string,
+    fields?: EmbedField[],
   ): EmbedBuilder {
     const embed = new EmbedBuilder()
       .setTitle("ℹ️ " + title)
-      .setColor(0x007AFF) // Blue color
+      .setColor(0x007aff) // Blue color
       .setTimestamp()
-      .setFooter({ 
-        text: "Information" 
+      .setFooter({
+        text: "Information",
       });
 
     if (description) {
@@ -77,10 +77,10 @@ export class WarningCard {
     const embed = new EmbedBuilder()
       .setTitle("⚠️ " + title)
       .setDescription(description)
-      .setColor(0xFFCC00) // Yellow/Orange color
+      .setColor(0xffcc00) // Yellow/Orange color
       .setTimestamp()
-      .setFooter({ 
-        text: "Warning • Please review" 
+      .setFooter({
+        text: "Warning • Please review",
       });
 
     return embed;

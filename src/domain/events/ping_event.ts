@@ -4,7 +4,7 @@ import {
   MessageFlags,
   SlashCommandBuilder,
 } from "discord.js";
-import {ErrorCard} from "../reuse/cards";
+import { ErrorCard } from "../reuse/cards";
 
 export default class PingEvent implements IEvent {
   async handleInteraction(interaction: DiscordInteraction): Promise<void> {
@@ -18,10 +18,12 @@ export default class PingEvent implements IEvent {
     const message = interaction.options.getString("message");
     if (!message) {
       await interaction.reply({
-        embeds : [ErrorCard.getErrorCard(
-          "No message provided",
-          "Please provide a message to ping.",
-        )],
+        embeds: [
+          ErrorCard.getErrorCard(
+            "No message provided",
+            "Please provide a message to ping.",
+          ),
+        ],
         flags: MessageFlags.Ephemeral,
       });
       return;

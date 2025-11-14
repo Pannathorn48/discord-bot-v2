@@ -1,9 +1,8 @@
-import { IEvent } from "@/domain/reuse/event_interface";
+import { IEvent, IModal } from "@/domain/reuse/event_interface";
 import PingEvent from "@/domain/events/ping_event";
 import { CreateProjectEvent } from "@/domain/events/create_project_event";
 import DeleteRoleEvent from "@/domain/events/delete_role_event";
 import ListProjectsEvent from "@/domain/events/list_projects_event";
-import { IModal } from "@/domain/reuse/modal_interface";
 import { CreateProjectService } from "@/domain/services/create_project_service";
 import { PrismaClient } from "@/generated/prisma/client";
 import { ProjectDatabase } from "@/domain/databases/project_database";
@@ -28,7 +27,6 @@ export class EventHandler {
 
     const listProjectsEvent = new ListProjectsEvent(projectDatabase);
     const deleteRoleEvent = new DeleteRoleEvent();
-    
 
     const createTaskService = new CreateTaskService(projectDatabase);
     const createTaskEvent = new CreateTaskEvent(createTaskService);
@@ -38,9 +36,18 @@ export class EventHandler {
       createProjectEvent.getSlashCommand().toJSON().name,
       createProjectEvent,
     );
-    this.handler.set(listProjectsEvent.getSlashCommand().toJSON().name, listProjectsEvent);
-    this.handler.set(deleteRoleEvent.getSlashCommand().toJSON().name, deleteRoleEvent);
-    this.handler.set(createTaskEvent.getSlashCommand().toJSON().name, createTaskEvent);
+    this.handler.set(
+      listProjectsEvent.getSlashCommand().toJSON().name,
+      listProjectsEvent,
+    );
+    this.handler.set(
+      deleteRoleEvent.getSlashCommand().toJSON().name,
+      deleteRoleEvent,
+    );
+    this.handler.set(
+      createTaskEvent.getSlashCommand().toJSON().name,
+      createTaskEvent,
+    );
 
     // Register modal handlers
     this.modalHandlers.set(createProjectEvent.getModalID(), createProjectEvent);

@@ -93,10 +93,11 @@ export default class DeleteRoleEvent implements IEvent {
         try {
           await role.delete(`Deleted via /delete-role by ${chat.user.tag}`);
 
-          const disabledRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-            confirmButton.setDisabled(true),
-            cancelButton.setDisabled(true),
-          );
+          const disabledRow =
+            new ActionRowBuilder<ButtonBuilder>().addComponents(
+              confirmButton.setDisabled(true),
+              cancelButton.setDisabled(true),
+            );
 
           await chat.editReply({
             embeds: [
@@ -109,10 +110,11 @@ export default class DeleteRoleEvent implements IEvent {
           });
         } catch (err) {
           console.error("Failed to delete role:", err);
-          const disabledRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-            confirmButton.setDisabled(true),
-            cancelButton.setDisabled(true),
-          );
+          const disabledRow =
+            new ActionRowBuilder<ButtonBuilder>().addComponents(
+              confirmButton.setDisabled(true),
+              cancelButton.setDisabled(true),
+            );
           await chat.editReply({
             embeds: [
               ErrorCard.getErrorCard(
@@ -130,7 +132,9 @@ export default class DeleteRoleEvent implements IEvent {
           cancelButton.setDisabled(true),
         );
         await chat.editReply({
-          embeds: [ErrorCard.getErrorCard("Cancelled", "Role deletion cancelled.")],
+          embeds: [
+            ErrorCard.getErrorCard("Cancelled", "Role deletion cancelled."),
+          ],
           components: [disabledRow],
         });
       }
@@ -141,7 +145,12 @@ export default class DeleteRoleEvent implements IEvent {
         cancelButton.setDisabled(true),
       );
       await chat.editReply({
-        embeds: [ErrorCard.getErrorCard("Timed out", "No confirmation received — action cancelled.")],
+        embeds: [
+          ErrorCard.getErrorCard(
+            "Timed out",
+            "No confirmation received — action cancelled.",
+          ),
+        ],
         components: [disabledRow],
       });
     }

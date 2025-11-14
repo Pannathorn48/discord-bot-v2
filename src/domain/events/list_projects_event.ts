@@ -41,7 +41,12 @@ export default class ListProjectsEvent implements IEvent {
 
       if (!projects || projects.length === 0) {
         await chat.reply({
-          embeds: [InfoCard.getInfoCard("No projects found", "There are no projects registered for this server.")],
+          embeds: [
+            InfoCard.getInfoCard(
+              "No projects found",
+              "There are no projects registered for this server.",
+            ),
+          ],
         });
         return;
       }
@@ -63,7 +68,11 @@ export default class ListProjectsEvent implements IEvent {
       await chat.reply({
         embeds: [
           InfoCard.getInfoCard("Projects in this server", undefined, [
-            { name: `Projects (${projects.length})`, value: chunks[0] ?? "", inline: false },
+            {
+              name: `Projects (${projects.length})`,
+              value: chunks[0] ?? "",
+              inline: false,
+            },
           ]),
         ],
       });
@@ -81,13 +90,20 @@ export default class ListProjectsEvent implements IEvent {
     } catch (err) {
       console.error("Failed to list projects:", err);
       await chat.reply({
-        embeds: [ErrorCard.getErrorCard("Failed to list projects", "Check server logs for details.")],
+        embeds: [
+          ErrorCard.getErrorCard(
+            "Failed to list projects",
+            "Check server logs for details.",
+          ),
+        ],
         flags: MessageFlags.Ephemeral,
       });
     }
   }
 
   getSlashCommand() {
-    return new SlashCommandBuilder().setName("list-projects").setDescription("List all projects for this server");
+    return new SlashCommandBuilder()
+      .setName("list-projects")
+      .setDescription("List all projects for this server");
   }
 }

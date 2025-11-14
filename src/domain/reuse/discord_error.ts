@@ -1,9 +1,9 @@
 import { extend } from "dayjs";
 
 export class DiscordBotError extends Error {
-    public title: string;
-    constructor(title : string,message: string) {
-        super(message);
-        this.title = title;
-    }  
+  public title: string;
+  constructor(title: string, message: string) {
+    super(message);
+    this.title = title;
+  }
 }

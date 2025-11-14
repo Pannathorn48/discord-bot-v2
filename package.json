@@ -9,7 +9,7 @@
     "generate": "prisma generate",
     "push": "prisma db push",
     "studio": "prisma studio",
-    "register" : "tsx ./src/register.ts"
+    "register": "tsx ./src/register.ts"
   },
   "keywords": [],
   "author": "",
@@ -17,6 +17,7 @@
   "packageManager": "pnpm@10.18.0",
   "devDependencies": {
     "@types/node": "^24.10.0",
+    "prettier": "^3.6.2",
     "prisma": "^6.19.0",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3"

@@ -1,6 +1,7 @@
 import {
   AutocompleteInteraction,
   ChatInputCommandInteraction,
+  ModalBuilder,
   ModalSubmitInteraction,
   SlashCommandBuilder,
   SlashCommandOptionsOnlyBuilder,
@@ -14,4 +15,10 @@ export type DiscordInteraction =
 export interface IEvent {
   handleInteraction(interaction: DiscordInteraction): Promise<void>;
   getSlashCommand(): any;
+}
+
+export interface IModal {
+  getModalID(): string;
+  getModal(...args: any[]): Promise<ModalBuilder>;
+  handleModalSubmit(interaction: ModalSubmitInteraction): Promise<void>;
 }
