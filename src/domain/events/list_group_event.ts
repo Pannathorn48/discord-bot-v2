@@ -1,9 +1,5 @@
-import {
-  ChatInputCommandInteraction,
-  IAutocomplete,
-  ICommand,
-} from "@/domain/reuse/event_interface";
-import { ListGroupService } from "@/domain/services/list_group_service";
+import { IAutocomplete, ICommand } from "@/domain/reuse/event_interface";
+import { GroupService } from "@/domain/services/group_service";
 import {
   AutocompleteInteraction,
   ChatInputCommandInteraction,
@@ -12,9 +8,9 @@ import {
 } from "discord.js";
 
 export class ListGroupEvent implements ICommand, IAutocomplete {
-  private listGroupService: ListGroupService;
-  constructor(service: ListGroupService) {
-    this.listGroupService = service;
+  private groupService: GroupService;
+  constructor(service: GroupService) {
+    this.groupService = service;
   }
   getAutocompleteID(): string {
     return "list-groups";
@@ -24,7 +20,7 @@ export class ListGroupEvent implements ICommand, IAutocomplete {
   ): Promise<void> {
     const focusedOption = interaction.options.getFocused(true);
     if (focusedOption.name === "project") {
-      const projects = await this.listGroupService.getProjectsInGuildFiltered(
+      const projects = await this.groupService.getProjectsInGuildFiltered(
         interaction.guildId as string,
         focusedOption.value
       );
@@ -45,7 +41,7 @@ export class ListGroupEvent implements ICommand, IAutocomplete {
       const chat = interaction as ChatInputCommandInteraction;
 
       const projectId = chat.options.getString("project", true);
-      const groups = await this.listGroupService.getGroupsInProject(projectId);
+      const groups = await this.groupService.getGroupsInProject(projectId);
 
       const groupLines = groups.map((g) => `• ${g.name}`);
 

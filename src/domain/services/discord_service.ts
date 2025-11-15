@@ -1,6 +1,6 @@
 import { DiscordDatabase } from "@/domain/databases/discord_database";
 import { DiscordBotError } from "../reuse/discord_error";
-import { Role } from "discord.js";
+import { HexColorString, Role } from "discord.js";
 
 export class DiscordService {
   private discordDatabase: DiscordDatabase;
@@ -8,7 +8,11 @@ export class DiscordService {
     this.discordDatabase = discordDatabase;
   }
 
-  async createRoleInGuild(guildId: string, roleName: string): Promise<Role> {
+  async createRoleInGuild(
+    guildId: string,
+    roleName: string,
+    color?: HexColorString
+  ): Promise<Role> {
     // Look up by name to avoid treating a role name as a snowflake ID
     const exist = await this.discordDatabase.getRoleByName(guildId, roleName);
     if (exist) {
@@ -19,7 +23,8 @@ export class DiscordService {
     }
     const role = await this.discordDatabase.createRoleInGuild(
       guildId,
-      roleName
+      roleName,
+      color
     );
     return role;
   }

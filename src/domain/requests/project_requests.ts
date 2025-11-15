@@ -1,10 +1,11 @@
-import dayjs from "dayjs";
+import { HexColorString } from "discord.js";
 
 export interface CreateProjectRequest {
   guildId: string;
   projectName: string;
   projectDescription?: string;
   projectRoleName: string;
+  projectRoleColor?: HexColorString;
   deadline: string;
 }
 

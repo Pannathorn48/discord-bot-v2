@@ -1,6 +1,7 @@
 import { ICommand, IModal } from "@/domain/reuse/event_interface";
 import {
   ChatInputCommandInteraction,
+  HexColorString,
   LabelBuilder,
   MessageFlags,
   ModalBuilder,
@@ -54,6 +55,9 @@ export class CreateProjectEvent implements ICommand, IModal {
       "project-description"
     );
 
+    const projectRoleColor =
+      interaction.fields.getTextInputValue("project-role-color");
+
     const req: CreateProjectRequest = {
       guildId: interaction.guildId!,
       projectName: projectName,
@@ -61,6 +65,21 @@ export class CreateProjectEvent implements ICommand, IModal {
       projectRoleName: projectRoleName,
       deadline: deadline,
     };
+    if (projectRoleColor) {
+      if (!/^#[0-9A-F]{6}$/i.test(projectRoleColor)) {
+        await interaction.reply({
+          embeds: [
+            ErrorCard.getErrorCard(
+              "Invalid Color Code",
+              "Please provide a valid hex color code (e.g. #FF5733)."
+            ),
+          ],
+          flags: MessageFlags.Ephemeral,
+        });
+        return;
+      }
+      req.projectRoleColor = projectRoleColor as HexColorString;
+    }
 
     try {
       await this.createProjectService.createProject(req);
@@ -134,6 +153,16 @@ export class CreateProjectEvent implements ICommand, IModal {
       .setLabel("Role name")
       .setTextInputComponent(projectRole);
 
+    const projectRoleColorLabel = new LabelBuilder()
+      .setLabel("Role color")
+      .setTextInputComponent(
+        new TextInputBuilder()
+          .setCustomId("project-role-color")
+          .setStyle(TextInputStyle.Short)
+          .setPlaceholder("Hex color code (e.g. #FF5733)")
+          .setRequired(false)
+      );
+
     const deadline = new TextInputBuilder()
       .setCustomId("deadline")
       .setStyle(TextInputStyle.Short)
@@ -148,6 +177,7 @@ export class CreateProjectEvent implements ICommand, IModal {
       projectNameLabel,
       projectDescriptionLabel,
       projectRoleLabel,
+      projectRoleColorLabel,
       deadlineLabel
     );
 

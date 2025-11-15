@@ -40,7 +40,17 @@ export class ProjectDatabase {
   ): Promise<Project[]> {
     const project: Project[] = await this.prisma.project.findMany({
       where: {
-        AND: [{ guildId: guildId }, { name: { contains: name } }],
+        guildId: guildId,
+        name: {
+          contains: name,
+          mode: "insensitive",
+        },
+      },
+      include: {
+        groups: true,
+      },
+      orderBy: {
+        createdAt: "desc",
       },
     });
     return project;

@@ -1,4 +1,4 @@
-import { Client, Role } from "discord.js";
+import { Client, HexColorString, Role } from "discord.js";
 
 export class DiscordDatabase {
   private client: Client;
@@ -26,10 +26,21 @@ export class DiscordDatabase {
     return;
   }
 
-  async createRoleInGuild(guildId: string, roleName: string): Promise<Role> {
+  async createRoleInGuild(
+    guildId: string,
+    roleName: string,
+    color?: HexColorString
+  ): Promise<Role> {
     const guild = await this.client.guilds.fetch(guildId);
     const guildFetched = await guild.fetch();
-    const role = await guildFetched.roles.create({ name: roleName });
+    const role = await guildFetched.roles.create(
+      color
+        ? {
+            name: roleName,
+            color: color,
+          }
+        : { name: roleName }
+    );
     return role;
   }
 

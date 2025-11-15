@@ -52,7 +52,8 @@ export class ProjectService {
     const deadline = await CreateDate(req.deadline);
     const role = await this.discordService.createRoleInGuild(
       req.guildId,
-      req.projectRoleName
+      req.projectRoleName,
+      req.projectRoleColor
     );
     await this.projectDatabase.createProject({
       name: req.projectName,

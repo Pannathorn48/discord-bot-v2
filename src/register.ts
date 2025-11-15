@@ -7,3 +7,5 @@ const config: Config = Config.getInstance();
 const client: Client = new Client({ intents: [GatewayIntentBits.Guilds] });
 const handler: EventHandler = EventHandler.getInstance(client);
 const bot: Bot = Bot.getInstance(client, config, handler);
+
+bot.registerCommands();
