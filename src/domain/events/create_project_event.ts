@@ -6,6 +6,7 @@ import {
   MessageFlags,
   ModalBuilder,
   ModalSubmitInteraction,
+  RESTPostAPIApplicationCommandsJSONBody,
   SlashCommandBuilder,
   TextInputBuilder,
   TextInputStyle,
@@ -59,7 +60,7 @@ export class CreateProjectEvent implements ICommand, IModal {
       interaction.fields.getTextInputValue("project-role-color");
 
     const req: CreateProjectRequest = {
-      guildId: interaction.guildId!,
+      guildId: interaction.guildId,
       projectName: projectName,
       projectDescription: projectDescription,
       projectRoleName: projectRoleName,
@@ -113,10 +114,11 @@ export class CreateProjectEvent implements ICommand, IModal {
       ],
     });
   }
-  getSlashCommand() {
+  getSlashCommand(): RESTPostAPIApplicationCommandsJSONBody {
     return new SlashCommandBuilder()
       .setName("new-project")
-      .setDescription("Create a new project (opens a modal)");
+      .setDescription("Create a new project (opens a modal)")
+      .toJSON();
   }
 
   async getModal(): Promise<ModalBuilder> {

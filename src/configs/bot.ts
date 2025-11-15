@@ -1,4 +1,10 @@
-import { Client, Events, GatewayIntentBits, REST, Routes } from "discord.js";
+import {
+  Client,
+  Events,
+  REST,
+  RESTPostAPIApplicationCommandsJSONBody,
+  Routes,
+} from "discord.js";
 import { DiscordBotError } from "@/domain/reuse/discord_error";
 import { Config } from "@/configs/config";
 import { EventHandler } from "@/configs/handler";
@@ -86,10 +92,10 @@ export class Bot {
   }
 
   async registerCommands() {
-    const definitions: any[] = [];
+    const definitions: RESTPostAPIApplicationCommandsJSONBody[] = [];
 
     this.handler.commandHandler.forEach((value, key) => {
-      definitions.push(value.getSlashCommand().toJSON());
+      definitions.push(value.getSlashCommand());
       console.log(`Registered command: /${key}`);
     });
 

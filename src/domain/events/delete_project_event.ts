@@ -3,6 +3,7 @@ import {
   AutocompleteInteraction,
   ChatInputCommandInteraction,
   MessageFlags,
+  RESTPostAPIApplicationCommandsJSONBody,
   SlashCommandBuilder,
 } from "discord.js";
 import { DiscordBotError } from "@/domain/reuse/discord_error";
@@ -72,7 +73,7 @@ export class DeleteProjectEvent implements ICommand, IAutocomplete {
       }
     }
   }
-  getSlashCommand() {
+  getSlashCommand(): RESTPostAPIApplicationCommandsJSONBody {
     return new SlashCommandBuilder()
       .setName("delete-project")
       .setDescription("Delete a project")
@@ -82,6 +83,7 @@ export class DeleteProjectEvent implements ICommand, IAutocomplete {
           .setDescription("select project to delete")
           .setRequired(true)
           .setAutocomplete(true);
-      });
+      })
+      .toJSON();
   }
 }

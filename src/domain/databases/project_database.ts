@@ -1,8 +1,5 @@
 import { PrismaClient, Project } from "@/generated/prisma/client";
-import {
-  CreateProjectDatabaseRequest,
-  CreateProjectRequest,
-} from "../requests/project_requests";
+import { CreateProjectDatabaseRequest } from "../requests/project_requests";
 
 export class ProjectDatabase {
   private prisma: PrismaClient;

@@ -3,9 +3,11 @@ import { ErrorCard, SuccessCard } from "../reuse/cards";
 import {
   ActionRowBuilder,
   ButtonBuilder,
+  ButtonInteraction,
   ButtonStyle,
   ChatInputCommandInteraction,
   ComponentType,
+  RESTPostAPIApplicationCommandsJSONBody,
   Role,
   SlashCommandBuilder,
 } from "discord.js";
@@ -75,7 +77,7 @@ export default class DeleteRoleEvent implements ICommand {
       const buttonInteraction = await replyMsg.awaitMessageComponent({
         componentType: ComponentType.Button,
         time: 15000,
-        filter: (i: any) => i.user.id === interaction.user.id,
+        filter: (i: ButtonInteraction) => i.user.id === interaction.user.id,
       });
 
       // Acknowledge button interaction
@@ -134,6 +136,7 @@ export default class DeleteRoleEvent implements ICommand {
       }
     } catch (err) {
       // Timeout or other error waiting for interaction
+      console.error("No confirmation received:", err);
       const disabledRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
         confirmButton.setDisabled(true),
         cancelButton.setDisabled(true)
@@ -150,12 +153,13 @@ export default class DeleteRoleEvent implements ICommand {
     }
   }
 
-  getSlashCommand() {
+  getSlashCommand(): RESTPostAPIApplicationCommandsJSONBody {
     return new SlashCommandBuilder()
       .setName("delete-role")
       .setDescription("Delete a role from the server")
       .addRoleOption((opt) =>
         opt.setName("role").setDescription("Role to delete").setRequired(true)
-      );
+      )
+      .toJSON();
   }
 }

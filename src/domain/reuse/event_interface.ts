@@ -3,18 +3,17 @@ import {
   ChatInputCommandInteraction,
   ModalBuilder,
   ModalSubmitInteraction,
-  SlashCommandBuilder,
-  SlashCommandOptionsOnlyBuilder,
+  RESTPostAPIApplicationCommandsJSONBody,
 } from "discord.js";
 
 export interface ICommand {
   handleCommand(interaction: ChatInputCommandInteraction): Promise<void>;
-  getSlashCommand(): any;
+  getSlashCommand(): RESTPostAPIApplicationCommandsJSONBody;
 }
 
 export interface IModal {
   getModalID(): string;
-  getModal(...args: any[]): Promise<ModalBuilder>;
+  getModal(...args: string[]): Promise<ModalBuilder>;
   handleModalSubmit(interaction: ModalSubmitInteraction): Promise<void>;
 }
 

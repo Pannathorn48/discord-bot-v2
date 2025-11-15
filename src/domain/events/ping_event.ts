@@ -1,5 +1,9 @@
 import { ICommand } from "@/domain/reuse/event_interface";
-import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
+import {
+  ChatInputCommandInteraction,
+  RESTPostAPIApplicationCommandsJSONBody,
+  SlashCommandBuilder,
+} from "discord.js";
 
 export default class PingEvent implements ICommand {
   async handleCommand(interaction: ChatInputCommandInteraction): Promise<void> {
@@ -8,9 +12,10 @@ export default class PingEvent implements ICommand {
       content: "Pong!",
     });
   }
-  getSlashCommand(): any {
+  getSlashCommand(): RESTPostAPIApplicationCommandsJSONBody {
     return new SlashCommandBuilder()
       .setName("ping")
-      .setDescription("Replies with Pong!");
+      .setDescription("Replies with Pong!")
+      .toJSON();
   }
 }

@@ -2,9 +2,9 @@ import { ICommand, IModal } from "@/domain/reuse/event_interface";
 import {
   ChatInputCommandInteraction,
   LabelBuilder,
-  MessageFlags,
   ModalBuilder,
   ModalSubmitInteraction,
+  RESTPostAPIApplicationCommandsJSONBody,
   SlashCommandBuilder,
   StringSelectMenuBuilder,
   TextInputBuilder,
@@ -12,6 +12,7 @@ import {
 } from "discord.js";
 import { DiscordBotError } from "@/domain/reuse/discord_error";
 import { GroupService } from "@/domain/services/group_service";
+import { ErrorCard } from "../reuse/cards";
 
 export class CreateGroupEvent implements ICommand, IModal {
   private createGroupService: GroupService;
@@ -22,7 +23,7 @@ export class CreateGroupEvent implements ICommand, IModal {
   getModalID(): string {
     return "new-group";
   }
-  async getModal(...args: any[]): Promise<ModalBuilder> {
+  async getModal(...args: string[]): Promise<ModalBuilder> {
     if (args.length != 1 || !args[0]) {
       throw new Error("Invalid arguments for getModal");
     }
@@ -103,11 +104,25 @@ export class CreateGroupEvent implements ICommand, IModal {
     });
   }
   async handleCommand(interaction: ChatInputCommandInteraction): Promise<void> {
-    await interaction.showModal(await this.getModal(interaction.guildId));
+    if (interaction.guildId) {
+      await interaction.showModal(await this.getModal(interaction.guildId));
+      return;
+    } else {
+      await interaction.reply({
+        embeds: [
+          ErrorCard.getErrorCard(
+            "Guild ID is required",
+            "Please run this command in a server."
+          ),
+        ],
+      });
+      return;
+    }
   }
-  getSlashCommand() {
+  getSlashCommand(): RESTPostAPIApplicationCommandsJSONBody {
     return new SlashCommandBuilder()
       .setName("new-group")
-      .setDescription("Create a new group");
+      .setDescription("Create a new group")
+      .toJSON();
   }
 }

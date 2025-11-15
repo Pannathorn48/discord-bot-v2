@@ -13,21 +13,19 @@ import { CreateTaskEvent } from "@/domain/events/create_task_event";
 import { CreateGroupEvent } from "@/domain/events/create_group_event";
 import { ListGroupEvent } from "@/domain/events/list_group_event";
 import { GroupDatabase } from "@/domain/databases/group_database";
-import { group } from "console";
 import { DeleteProjectEvent } from "@/domain/events/delete_project_event";
 import { ProjectService } from "@/domain/services/project_service";
-import { Bot } from "./bot";
 import { DiscordDatabase } from "@/domain/databases/discord_database";
 import { DiscordService } from "@/domain/services/discord_service";
 import { GroupService } from "@/domain/services/group_service";
 import { TaskService } from "@/domain/services/task_service";
-import { Client, GatewayIntentBits } from "discord.js";
+import { Client } from "discord.js";
 
 export class EventHandler {
   private static instance: EventHandler | null = null;
   public commandHandler: Map<string, ICommand>;
-  public modalHandler: Map<string, IModal> = new Map();
-  public autoCompleteHandler: Map<string, IAutocomplete> = new Map();
+  public modalHandler = new Map<string, IModal>();
+  public autoCompleteHandler = new Map<string, IAutocomplete>();
   private constructor(client: Client) {
     this.commandHandler = new Map<string, ICommand>();
     // infrastructure setup
@@ -54,34 +52,31 @@ export class EventHandler {
     const deleteProjectEvent = new DeleteProjectEvent(projectService);
     const listGroupEvent = new ListGroupEvent(groupService);
 
+    this.commandHandler.set(pingEvent.getSlashCommand().name, pingEvent);
     this.commandHandler.set(
-      pingEvent.getSlashCommand().toJSON().name,
-      pingEvent
-    );
-    this.commandHandler.set(
-      createProjectEvent.getSlashCommand().toJSON().name,
+      createProjectEvent.getSlashCommand().name,
       createProjectEvent
     );
     this.commandHandler.set(
-      listProjectsEvent.getSlashCommand().toJSON().name,
+      listProjectsEvent.getSlashCommand().name,
       listProjectsEvent
     );
     this.commandHandler.set(
-      deleteRoleEvent.getSlashCommand().toJSON().name,
+      deleteRoleEvent.getSlashCommand().name,
       deleteRoleEvent
     );
     this.commandHandler.set(
-      createTaskEvent.getSlashCommand().toJSON().name,
+      createTaskEvent.getSlashCommand().name,
       createTaskEvent
     );
 
     this.commandHandler.set(
-      createGroupEvent.getSlashCommand().toJSON().name,
+      createGroupEvent.getSlashCommand().name,
       createGroupEvent
     );
 
     this.commandHandler.set(
-      deleteProjectEvent.getSlashCommand().toJSON().name,
+      deleteProjectEvent.getSlashCommand().name,
       deleteProjectEvent
     );
 

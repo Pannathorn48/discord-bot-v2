@@ -1,4 +1,3 @@
-import { KnownNetworkErrorCodes } from "discord.js";
 import dotenv from "dotenv";
 
 export class ConfigError extends Error {

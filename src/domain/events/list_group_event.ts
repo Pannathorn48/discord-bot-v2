@@ -5,6 +5,7 @@ import {
   ChatInputCommandInteraction,
   SlashCommandBuilder,
   EmbedBuilder,
+  RESTPostAPIApplicationCommandsJSONBody,
 } from "discord.js";
 
 export class ListGroupEvent implements ICommand, IAutocomplete {
@@ -66,7 +67,7 @@ export class ListGroupEvent implements ICommand, IAutocomplete {
       return;
     }
   }
-  getSlashCommand() {
+  getSlashCommand(): RESTPostAPIApplicationCommandsJSONBody {
     return new SlashCommandBuilder()
       .setName("list-groups")
       .setDescription("List all groups in projects")
@@ -76,6 +77,7 @@ export class ListGroupEvent implements ICommand, IAutocomplete {
           .setDescription("Project name")
           .setRequired(true)
           .setAutocomplete(true)
-      );
+      )
+      .toJSON();
   }
 }

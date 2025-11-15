@@ -24,7 +24,7 @@ export class SuccessCard {
   static getSuccessCard(
     title: string,
     description?: string,
-    fields?: EmbedField[],
+    fields?: EmbedField[]
   ): EmbedBuilder {
     const embed = new EmbedBuilder()
       .setTitle("✅ " + title)
@@ -50,7 +50,7 @@ export class InfoCard {
   static getInfoCard(
     title: string,
     description?: string,
-    fields?: EmbedField[],
+    fields?: EmbedField[]
   ): EmbedBuilder {
     const embed = new EmbedBuilder()
       .setTitle("ℹ️ " + title)

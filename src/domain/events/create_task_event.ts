@@ -3,8 +3,8 @@ import {
   ChatInputCommandInteraction,
   LabelBuilder,
   ModalBuilder,
-  ModalMessageModalSubmitInteraction,
   ModalSubmitInteraction,
+  RESTPostAPIApplicationCommandsJSONBody,
   SlashCommandBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
@@ -22,8 +22,8 @@ export class CreateTaskEvent implements ICommand, IModal {
   getModalID(): string {
     return "new-task";
   }
-  async getModal(...args: any[]): Promise<ModalBuilder> {
-    if (!args || args.length != 1) {
+  async getModal(...args: string[]): Promise<ModalBuilder> {
+    if (!args || args.length != 1 || !args[0]) {
       throw new Error("Invalid arguments for getModal");
     }
 
@@ -92,11 +92,14 @@ export class CreateTaskEvent implements ICommand, IModal {
     return;
   }
   async handleCommand(interaction: ChatInputCommandInteraction): Promise<void> {
-    await interaction.showModal(await this.getModal(interaction.guildId));
+    if (interaction.guildId) {
+      await interaction.showModal(await this.getModal(interaction.guildId));
+    }
   }
-  getSlashCommand() {
+  getSlashCommand(): RESTPostAPIApplicationCommandsJSONBody {
     return new SlashCommandBuilder()
       .setName("new-task")
-      .setDescription("Create a new task");
+      .setDescription("Create a new task")
+      .toJSON();
   }
 }

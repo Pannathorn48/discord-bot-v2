@@ -1,9 +1,9 @@
 import { ICommand } from "@/domain/reuse/event_interface";
 import { InfoCard, ErrorCard } from "../reuse/cards";
-import { ProjectDatabase } from "@/domain/databases/project_database";
 import {
   ChatInputCommandInteraction,
   MessageFlags,
+  RESTPostAPIApplicationCommandsJSONBody,
   SlashCommandBuilder,
 } from "discord.js";
 import dayjs from "dayjs";
@@ -104,9 +104,10 @@ export default class ListProjectsEvent implements ICommand {
     }
   }
 
-  getSlashCommand() {
+  getSlashCommand(): RESTPostAPIApplicationCommandsJSONBody {
     return new SlashCommandBuilder()
       .setName("list-projects")
-      .setDescription("List all projects for this server");
+      .setDescription("List all projects for this server")
+      .toJSON();
   }
 }
