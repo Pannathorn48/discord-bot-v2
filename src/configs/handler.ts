@@ -21,20 +21,22 @@ import { DiscordDatabase } from "@/domain/databases/discord_database";
 import { DiscordService } from "@/domain/services/discord_service";
 import { GroupService } from "@/domain/services/group_service";
 import { TaskService } from "@/domain/services/task_service";
+import { Client, GatewayIntentBits } from "discord.js";
 
 export class EventHandler {
   private static instance: EventHandler | null = null;
   public commandHandler: Map<string, ICommand>;
   public modalHandler: Map<string, IModal> = new Map();
   public autoCompleteHandler: Map<string, IAutocomplete> = new Map();
-  private constructor() {
+  private constructor(client: Client) {
     this.commandHandler = new Map<string, ICommand>();
+    // infrastructure setup
+    const prismaClient = new PrismaClient();
 
     // For Databases
-    const prismaClient = new PrismaClient();
     const groupDatabase = new GroupDatabase(prismaClient);
     const projectDatabase = new ProjectDatabase(prismaClient);
-    const discordDatabase = new DiscordDatabase(Bot.getClientInstance()!);
+    const discordDatabase = new DiscordDatabase(client);
 
     // For Services
     const discordService = new DiscordService(discordDatabase);
@@ -100,9 +102,9 @@ export class EventHandler {
     );
   }
 
-  public static getInstance(): EventHandler {
+  public static getInstance(client: Client): EventHandler {
     if (!EventHandler.instance) {
-      EventHandler.instance = new EventHandler();
+      EventHandler.instance = new EventHandler(client);
     }
     return EventHandler.instance;
   }

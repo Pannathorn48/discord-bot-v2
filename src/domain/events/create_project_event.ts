@@ -72,6 +72,7 @@ export class CreateProjectEvent implements ICommand, IModal {
         });
         return;
       }
+      console.error("Unknown error creating project:", e);
       await interaction.reply({
         embeds: [
           ErrorCard.getErrorCard(

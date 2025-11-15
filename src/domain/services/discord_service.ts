@@ -22,4 +22,16 @@ export class DiscordService {
     );
     return role;
   }
+
+  async deleteRoleInGuild(guildId: string, roleId: string): Promise<void> {
+    const role = await this.discordDatabase.getRoleById(guildId, roleId);
+    if (!role) {
+      throw new DiscordBotError(
+        "Role Not Found",
+        "The specified role does not exist in the guild."
+      );
+    }
+    await this.discordDatabase.deleteRoleById(guildId, roleId);
+    return;
+  }
 }

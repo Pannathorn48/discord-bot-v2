@@ -9,23 +9,19 @@ export class Bot {
   private cfg: Config;
   private handler: EventHandler;
 
-  private constructor(cfg: Config, handler: EventHandler) {
-    this.client = new Client({ intents: [GatewayIntentBits.Guilds] });
+  private constructor(client: Client, cfg: Config, handler: EventHandler) {
+    this.client = client;
     this.cfg = cfg;
     this.handler = handler;
   }
 
-  public static getClientInstance(): Client | null {
-    return Bot.instance ? Bot.instance.client : null;
-  }
-
-  public getClient(): Client {
-    return this.client;
-  }
-
-  public static getInstance(cfg: Config, handler: EventHandler): Bot {
+  public static getInstance(
+    client: Client,
+    cfg: Config,
+    handler: EventHandler
+  ): Bot {
     if (!Bot.instance) {
-      Bot.instance = new Bot(cfg, handler);
+      Bot.instance = new Bot(client, cfg, handler);
     }
     return Bot.instance;
   }

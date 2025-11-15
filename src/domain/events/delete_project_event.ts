@@ -6,7 +6,7 @@ import {
   SlashCommandBuilder,
 } from "discord.js";
 import { DiscordBotError } from "@/domain/reuse/discord_error";
-import { ErrorCard } from "@/domain/reuse/cards";
+import { ErrorCard, SuccessCard } from "@/domain/reuse/cards";
 import { ProjectService } from "@/domain/services/project_service";
 
 export class DeleteProjectEvent implements ICommand, IAutocomplete {
@@ -20,7 +20,6 @@ export class DeleteProjectEvent implements ICommand, IAutocomplete {
   async handleAutocomplete(
     interaction: AutocompleteInteraction
   ): Promise<void> {
-    // `getFocused()` returns the user's current typed value (string/number/bool).
     const focused = interaction.options.getFocused();
     const guildId = interaction.guildId;
 
@@ -51,12 +50,21 @@ export class DeleteProjectEvent implements ICommand, IAutocomplete {
     // await interaction.deferReply();
 
     try {
-      await this.deleteProjectService.deleteProjectById(projectId);
-      await interaction.reply({ content: `Project deleted: ${projectId}` });
+      const projectName =
+        await this.deleteProjectService.deleteProjectById(projectId);
+      await interaction.reply({
+        embeds: [
+          SuccessCard.getSuccessCard(
+            "Project Deleted",
+            `The project **${projectName}** has been successfully deleted.`
+          ),
+        ],
+      });
     } catch (err) {
       if (err instanceof DiscordBotError) {
         await interaction.reply({
           embeds: [ErrorCard.getErrorCardFromError(err)],
+          flags: MessageFlags.Ephemeral,
         });
         return;
       } else {

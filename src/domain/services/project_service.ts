@@ -17,7 +17,7 @@ export class ProjectService {
     this.discordService = discordService;
   }
 
-  async deleteProjectById(projectId: string): Promise<void> {
+  async deleteProjectById(projectId: string): Promise<string> {
     const project = await this.projectDatabase.getProjectById(projectId);
     if (!project) {
       throw new DiscordBotError(
@@ -26,7 +26,12 @@ export class ProjectService {
       );
     }
     await this.projectDatabase.deleteProjectById(projectId);
-    return;
+    await this.discordService.deleteRoleInGuild(
+      project.guildId,
+      project.roleId
+    );
+
+    return project.name;
   }
 
   async getProjectsInGuildAndName(
