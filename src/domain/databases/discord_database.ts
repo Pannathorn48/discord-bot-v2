@@ -16,14 +16,15 @@ export class DiscordDatabase {
     return null;
   }
 
-  async deleteRoleById(guildId: string, roleId: string): Promise<void> {
+  async deleteRoleById(guildId: string, roleId: string): Promise<boolean> {
     const guild = await this.client.guilds.fetch(guildId);
     const guildFetched = await guild.fetch();
     const role = await guildFetched.roles.fetch(roleId);
     if (role) {
       await role.delete();
+      return true;
     }
-    return;
+    return false;
   }
 
   async createRoleInGuild(
@@ -37,7 +38,7 @@ export class DiscordDatabase {
       color
         ? {
             name: roleName,
-            color: color,
+            colors: { primaryColor: color },
           }
         : { name: roleName }
     );
