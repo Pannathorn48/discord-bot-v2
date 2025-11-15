@@ -1,7 +1,4 @@
-import {
-  ICommand,
-  ChatInputCommandInteraction,
-} from "@/domain/reuse/event_interface";
+import { ICommand } from "@/domain/reuse/event_interface";
 import {
   ChatInputCommandInteraction,
   MessageFlags,

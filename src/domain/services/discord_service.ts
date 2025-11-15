@@ -9,7 +9,8 @@ export class DiscordService {
   }
 
   async createRoleInGuild(guildId: string, roleName: string): Promise<Role> {
-    const exist = await this.discordDatabase.getRoleById(guildId, roleName);
+    // Look up by name to avoid treating a role name as a snowflake ID
+    const exist = await this.discordDatabase.getRoleByName(guildId, roleName);
     if (exist) {
       throw new DiscordBotError(
         "Role is Exist",

@@ -32,4 +32,13 @@ export class DiscordDatabase {
     const role = await guildFetched.roles.create({ name: roleName });
     return role;
   }
+
+  async getRoleByName(guildId: string, roleName: string): Promise<Role | null> {
+    const guild = await this.client.guilds.fetch(guildId);
+    const guildFetched = await guild.fetch();
+    // Ensure roles cache is populated
+    await guildFetched.roles.fetch();
+    const role = guildFetched.roles.cache.find((r) => r.name === roleName);
+    return role ?? null;
+  }
 }
