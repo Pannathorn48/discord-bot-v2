@@ -1,7 +1,4 @@
-import {
-  ICommand,
-  ChatInputCommandInteraction,
-} from "@/domain/reuse/event_interface";
+import { ICommand } from "@/domain/reuse/event_interface";
 import { ErrorCard, SuccessCard } from "../reuse/cards";
 import {
   ActionRowBuilder,
@@ -9,22 +6,14 @@ import {
   ButtonStyle,
   ChatInputCommandInteraction,
   ComponentType,
-  MessageFlags,
   Role,
   SlashCommandBuilder,
 } from "discord.js";
 
 export default class DeleteRoleEvent implements ICommand {
   async handleCommand(interaction: ChatInputCommandInteraction): Promise<void> {
-    if (!interaction.isChatInputCommand()) {
-      console.log("Invalid Interaction");
-      return;
-    }
-
-    const chat = interaction as ChatInputCommandInteraction;
-
-    if (!chat.guild) {
-      await chat.reply({
+    if (!interaction.guild) {
+      await interaction.reply({
         embeds: [
           ErrorCard.getErrorCard(
             "Guild required",
@@ -35,9 +24,9 @@ export default class DeleteRoleEvent implements ICommand {
       return;
     }
 
-    const role = chat.options.getRole("role", true) as Role;
+    const role = interaction.options.getRole("role", true) as Role;
     if (!role) {
-      await chat.reply({
+      await interaction.reply({
         embeds: [
           ErrorCard.getErrorCard(
             "Role not found",
@@ -64,7 +53,7 @@ export default class DeleteRoleEvent implements ICommand {
       cancelButton
     );
 
-    await chat.reply({
+    await interaction.reply({
       embeds: [
         SuccessCard.getSuccessCard(
           "Confirm role deletion",
@@ -79,14 +68,14 @@ export default class DeleteRoleEvent implements ICommand {
     });
 
     // Fetch the reply so we can await a button interaction on it
-    const replyMsg = await chat.fetchReply();
+    const replyMsg = await interaction.fetchReply();
 
     // Wait for the button click from the same user
     try {
       const buttonInteraction = await replyMsg.awaitMessageComponent({
         componentType: ComponentType.Button,
         time: 15000,
-        filter: (i: any) => i.user.id === chat.user.id,
+        filter: (i: any) => i.user.id === interaction.user.id,
       });
 
       // Acknowledge button interaction
@@ -94,7 +83,9 @@ export default class DeleteRoleEvent implements ICommand {
 
       if (buttonInteraction.customId === "confirm_delete") {
         try {
-          await role.delete(`Deleted via /delete-role by ${chat.user.tag}`);
+          await role.delete(
+            `Deleted via /delete-role by ${interaction.user.tag}`
+          );
 
           const disabledRow =
             new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -102,7 +93,7 @@ export default class DeleteRoleEvent implements ICommand {
               cancelButton.setDisabled(true)
             );
 
-          await chat.editReply({
+          await interaction.editReply({
             embeds: [
               SuccessCard.getSuccessCard("Role deleted", undefined, [
                 { name: "🆔 Role ID", value: role.id, inline: true },
@@ -118,7 +109,7 @@ export default class DeleteRoleEvent implements ICommand {
               confirmButton.setDisabled(true),
               cancelButton.setDisabled(true)
             );
-          await chat.editReply({
+          await interaction.editReply({
             embeds: [
               ErrorCard.getErrorCard(
                 "Failed to delete role",
@@ -134,7 +125,7 @@ export default class DeleteRoleEvent implements ICommand {
           confirmButton.setDisabled(true),
           cancelButton.setDisabled(true)
         );
-        await chat.editReply({
+        await interaction.editReply({
           embeds: [
             ErrorCard.getErrorCard("Cancelled", "Role deletion cancelled."),
           ],
@@ -147,7 +138,7 @@ export default class DeleteRoleEvent implements ICommand {
         confirmButton.setDisabled(true),
         cancelButton.setDisabled(true)
       );
-      await chat.editReply({
+      await interaction.editReply({
         embeds: [
           ErrorCard.getErrorCard(
             "Timed out",

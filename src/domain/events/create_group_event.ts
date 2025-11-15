@@ -10,14 +10,13 @@ import {
   TextInputBuilder,
   TextInputStyle,
 } from "discord.js";
-import { CreateGroupService } from "../services/create_group_service";
-import { DiscordBotError } from "../reuse/discord_error";
-import { ErrorCard } from "../reuse/cards";
+import { DiscordBotError } from "@/domain/reuse/discord_error";
+import { GroupService } from "@/domain/services/group_service";
 
 export class CreateGroupEvent implements ICommand, IModal {
-  private createGroupService: CreateGroupService;
+  private createGroupService: GroupService;
 
-  constructor(service: CreateGroupService) {
+  constructor(service: GroupService) {
     this.createGroupService = service;
   }
   getModalID(): string {

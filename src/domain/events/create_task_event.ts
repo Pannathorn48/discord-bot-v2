@@ -11,12 +11,12 @@ import {
   TextInputBuilder,
   TextInputStyle,
 } from "discord.js";
-import { CreateTaskService } from "../services/create_task_service";
+import { TaskService } from "@/domain/services/task_service";
 
 export class CreateTaskEvent implements ICommand, IModal {
-  private createTaskService: CreateTaskService;
+  private createTaskService: TaskService;
 
-  constructor(service: CreateTaskService) {
+  constructor(service: TaskService) {
     this.createTaskService = service;
   }
   getModalID(): string {

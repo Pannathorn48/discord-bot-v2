@@ -7,71 +7,80 @@ import PingEvent from "@/domain/events/ping_event";
 import { CreateProjectEvent } from "@/domain/events/create_project_event";
 import DeleteRoleEvent from "@/domain/events/delete_role_event";
 import ListProjectsEvent from "@/domain/events/list_projects_event";
-import { CreateProjectService } from "@/domain/services/create_project_service";
 import { PrismaClient } from "@/generated/prisma/client";
 import { ProjectDatabase } from "@/domain/databases/project_database";
 import { CreateTaskEvent } from "@/domain/events/create_task_event";
-import { CreateTaskService } from "@/domain/services/create_task_service";
-import { CreateGroupService } from "@/domain/services/create_group_service";
 import { CreateGroupEvent } from "@/domain/events/create_group_event";
 import { ListGroupEvent } from "@/domain/events/list_group_event";
-import { ListGroupService } from "@/domain/services/list_group_service";
 import { GroupDatabase } from "@/domain/databases/group_database";
 import { group } from "console";
+import { DeleteProjectEvent } from "@/domain/events/delete_project_event";
+import { ProjectService } from "@/domain/services/project_service";
+import { Bot } from "./bot";
+import { DiscordDatabase } from "@/domain/databases/discord_database";
+import { DiscordService } from "@/domain/services/discord_service";
+import { GroupService } from "@/domain/services/group_service";
+import { TaskService } from "@/domain/services/task_service";
 
 export class EventHandler {
   private static instance: EventHandler | null = null;
-  public handler: Map<string, ICommand>;
+  public commandHandler: Map<string, ICommand>;
   public modalHandler: Map<string, IModal> = new Map();
   public autoCompleteHandler: Map<string, IAutocomplete> = new Map();
   private constructor() {
-    this.handler = new Map<string, ICommand>();
+    this.commandHandler = new Map<string, ICommand>();
 
+    // For Databases
     const prismaClient = new PrismaClient();
-
-    const pingEvent = new PingEvent();
-
-    const projectDatabase = new ProjectDatabase(prismaClient);
-    const createProjectService = new CreateProjectService(projectDatabase);
-    const createProjectEvent = new CreateProjectEvent(createProjectService);
-
-    const listProjectsEvent = new ListProjectsEvent(projectDatabase);
-    const deleteRoleEvent = new DeleteRoleEvent();
-
-    const createGroupService = new CreateGroupService(projectDatabase);
-    const createGroupEvent = new CreateGroupEvent(createGroupService);
-
-    const createTaskService = new CreateTaskService(projectDatabase);
-    const createTaskEvent = new CreateTaskEvent(createTaskService);
-
     const groupDatabase = new GroupDatabase(prismaClient);
-    const listGroupService = new ListGroupService(
-      groupDatabase,
-      projectDatabase
-    );
-    const listGroupEvent = new ListGroupEvent(listGroupService);
+    const projectDatabase = new ProjectDatabase(prismaClient);
+    const discordDatabase = new DiscordDatabase(Bot.getClientInstance()!);
 
-    this.handler.set(pingEvent.getSlashCommand().toJSON().name, pingEvent);
-    this.handler.set(
+    // For Services
+    const discordService = new DiscordService(discordDatabase);
+    const projectService = new ProjectService(projectDatabase, discordService);
+    const groupService = new GroupService(groupDatabase, projectDatabase);
+    const taskService = new TaskService(projectDatabase);
+
+    // For Events
+    const pingEvent = new PingEvent();
+    const createProjectEvent = new CreateProjectEvent(projectService);
+    const listProjectsEvent = new ListProjectsEvent(projectService);
+    const deleteRoleEvent = new DeleteRoleEvent();
+    const createGroupEvent = new CreateGroupEvent(groupService);
+    const createTaskEvent = new CreateTaskEvent(taskService);
+    const deleteProjectEvent = new DeleteProjectEvent(projectService);
+    const listGroupEvent = new ListGroupEvent(groupService);
+
+    this.commandHandler.set(
+      pingEvent.getSlashCommand().toJSON().name,
+      pingEvent
+    );
+    this.commandHandler.set(
       createProjectEvent.getSlashCommand().toJSON().name,
       createProjectEvent
     );
-    this.handler.set(
+    this.commandHandler.set(
       listProjectsEvent.getSlashCommand().toJSON().name,
       listProjectsEvent
     );
-    this.handler.set(
+    this.commandHandler.set(
       deleteRoleEvent.getSlashCommand().toJSON().name,
       deleteRoleEvent
     );
-    this.handler.set(
+    this.commandHandler.set(
       createTaskEvent.getSlashCommand().toJSON().name,
       createTaskEvent
     );
 
-    this.handler.set(
+    this.commandHandler.set(
       createGroupEvent.getSlashCommand().toJSON().name,
       createGroupEvent
+    );
+
+    this.commandHandler.set(
+      deleteProjectEvent.getSlashCommand().toJSON().name,
+      deleteProjectEvent
     );
 
     // for modal handlers
@@ -83,6 +92,11 @@ export class EventHandler {
     this.autoCompleteHandler.set(
       listGroupEvent.getAutocompleteID(),
       listGroupEvent
+    );
+
+    this.autoCompleteHandler.set(
+      deleteProjectEvent.getAutocompleteID(),
+      deleteProjectEvent
     );
   }
 

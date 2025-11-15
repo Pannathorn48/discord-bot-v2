@@ -5,31 +5,58 @@ import {
   MessageFlags,
   SlashCommandBuilder,
 } from "discord.js";
-import { DeleteProjectService } from "../services/delete_project_service";
-import { DiscordBotError } from "../reuse/discord_error";
-import { ErrorCard } from "../reuse/cards";
+import { DiscordBotError } from "@/domain/reuse/discord_error";
+import { ErrorCard } from "@/domain/reuse/cards";
+import { ProjectService } from "@/domain/services/project_service";
 
 export class DeleteProjectEvent implements ICommand, IAutocomplete {
-  private deleteProjectService: DeleteProjectService;
-  constructor(service: DeleteProjectService) {
+  private deleteProjectService: ProjectService;
+  constructor(service: ProjectService) {
     this.deleteProjectService = service;
   }
   getAutocompleteID(): string {
     return "delete-project";
   }
-  handleAutocomplete(interaction: AutocompleteInteraction): Promise<void> {
-    throw new Error("Method not implemented.");
+  async handleAutocomplete(
+    interaction: AutocompleteInteraction
+  ): Promise<void> {
+    // `getFocused()` returns the user's current typed value (string/number/bool).
+    const focused = interaction.options.getFocused();
+    const guildId = interaction.guildId;
+
+    if (!guildId) {
+      await interaction.respond([]);
+      return;
+    }
+
+    const query = focused ? String(focused) : "";
+
+    const projects = await this.deleteProjectService.getProjectsInGuildAndName(
+      guildId,
+      query
+    );
+
+    await interaction.respond(
+      projects.map((p) => {
+        return {
+          name: p.name,
+          description: p.description || "No description",
+          value: p.id as string,
+        };
+      })
+    );
   }
   async handleCommand(interaction: ChatInputCommandInteraction): Promise<void> {
-    const projectId = interaction.options.getString("project-id", true);
+    const projectId = interaction.options.getString("project", true);
+    // await interaction.deferReply();
 
     try {
       await this.deleteProjectService.deleteProjectById(projectId);
+      await interaction.reply({ content: `Project deleted: ${projectId}` });
     } catch (err) {
       if (err instanceof DiscordBotError) {
         await interaction.reply({
           embeds: [ErrorCard.getErrorCardFromError(err)],
-          flags: MessageFlags.Ephemeral,
         });
         return;
       } else {
@@ -43,8 +70,8 @@ export class DeleteProjectEvent implements ICommand, IAutocomplete {
       .setDescription("Delete a project")
       .addStringOption((option) => {
         return option
-          .setName("project-id")
-          .setDescription("ID of the project to delete")
+          .setName("project")
+          .setDescription("select project to delete")
           .setRequired(true)
           .setAutocomplete(true);
       });

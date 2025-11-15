@@ -1,8 +1,8 @@
+import { ProjectDatabase } from "@/domain/databases/project_database";
 import { GroupDatabase } from "@/domain/databases/group_database";
 import { Group } from "@/generated/prisma/client";
-import { ProjectDatabase } from "../databases/project_database";
 
-export class ListGroupService {
+export class GroupService {
   private groupDatabase: GroupDatabase;
   private projectDatabase: ProjectDatabase;
   constructor(groupDatabase: GroupDatabase, projectDatabase: ProjectDatabase) {

@@ -22,35 +22,35 @@ export class Config {
   private constructor() {
     dotenv.config();
 
-    let host: string | undefined = process.env.PG_HOST;
+    const host: string | undefined = process.env.PG_HOST;
     if (!host) {
       throw new ConfigError("PG_HOST is not defined");
     }
-    let database: string | undefined = process.env.PG_DATABASE;
+    const database: string | undefined = process.env.PG_DATABASE;
     if (!database) {
       throw new ConfigError("PG_DATABASE is not defined");
     }
-    let user: string | undefined = process.env.PG_USER;
+    const user: string | undefined = process.env.PG_USER;
     if (!user) {
       throw new ConfigError("PG_USER is not defined");
     }
-    let password: string | undefined = process.env.PG_PASSWORD;
+    const password: string | undefined = process.env.PG_PASSWORD;
     if (!password) {
       throw new ConfigError("PG_PASSWORD is not defined");
     }
-    let port: number | undefined = process.env.PG_PORT
+    const port: number | undefined = process.env.PG_PORT
       ? parseInt(process.env.PG_PORT)
       : undefined;
     if (!port) {
       throw new ConfigError("PG_PORT is not defined or invalid");
     }
 
-    let token: string | undefined = process.env.TOKEN;
+    const token: string | undefined = process.env.TOKEN;
     if (!token) {
       throw new ConfigError("TOKEN is not defined");
     }
 
-    let appId: string | undefined = process.env.APP_ID;
+    const appId: string | undefined = process.env.APP_ID;
     if (!appId) {
       throw new ConfigError("APP_ID is not defined");
     }

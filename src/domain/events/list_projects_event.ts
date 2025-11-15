@@ -1,7 +1,4 @@
-import {
-  ICommand,
-  ChatInputCommandInteraction,
-} from "@/domain/reuse/event_interface";
+import { ICommand } from "@/domain/reuse/event_interface";
 import { InfoCard, ErrorCard } from "../reuse/cards";
 import { ProjectDatabase } from "@/domain/databases/project_database";
 import {
@@ -10,12 +7,13 @@ import {
   SlashCommandBuilder,
 } from "discord.js";
 import dayjs from "dayjs";
+import { ProjectService } from "@/domain/services/project_service";
 
 export default class ListProjectsEvent implements ICommand {
-  private projectDb: ProjectDatabase;
+  private projectService: ProjectService;
 
-  constructor(projectDb: ProjectDatabase) {
-    this.projectDb = projectDb;
+  constructor(projectDb: ProjectService) {
+    this.projectService = projectDb;
   }
 
   async handleCommand(interaction: ChatInputCommandInteraction): Promise<void> {
@@ -40,7 +38,9 @@ export default class ListProjectsEvent implements ICommand {
     }
 
     try {
-      const projects = await this.projectDb.getProjectFromGuildId(chat.guildId);
+      const projects = await this.projectService.getProjectsInGuild(
+        chat.guildId
+      );
 
       if (!projects || projects.length === 0) {
         await chat.reply({

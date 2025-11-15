@@ -1,12 +1,13 @@
 import { ProjectDatabase } from "@/domain/databases/project_database";
+import { Project } from "@/generated/prisma/client";
 
-export class CreateGroupService {
+export class TaskService {
   private projectDatabase: ProjectDatabase;
   constructor(projectDatabase: ProjectDatabase) {
     this.projectDatabase = projectDatabase;
   }
 
-  public async getProjectsInGuild(guildId: string) {
+  async getProjectsInGuild(guildId: string): Promise<Project[]> {
     return await this.projectDatabase.getProjectFromGuildId(guildId);
   }
 }

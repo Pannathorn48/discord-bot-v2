@@ -9,15 +9,15 @@ import {
   TextInputBuilder,
   TextInputStyle,
 } from "discord.js";
-import { ErrorCard, SuccessCard } from "../reuse/cards";
-import { CreateProjectRequest } from "../requests/project_requests";
-import { CreateProjectService } from "../services/create_project_service";
-import { DiscordBotError } from "../reuse/discord_error";
+import { ErrorCard, SuccessCard } from "@/domain/reuse/cards";
+import { CreateProjectRequest } from "@/domain/requests/project_requests";
+import { DiscordBotError } from "@/domain/reuse/discord_error";
+import { ProjectService } from "@/domain/services/project_service";
 
 export class CreateProjectEvent implements ICommand, IModal {
-  private createProjectService: CreateProjectService;
+  private createProjectService: ProjectService;
 
-  constructor(service: CreateProjectService) {
+  constructor(service: ProjectService) {
     this.createProjectService = service;
   }
 

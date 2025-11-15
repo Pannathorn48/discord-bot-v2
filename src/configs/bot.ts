@@ -1,11 +1,4 @@
-import {
-  Client,
-  Events,
-  GatewayIntentBits,
-  ModalSubmitInteraction,
-  REST,
-  Routes,
-} from "discord.js";
+import { Client, Events, GatewayIntentBits, REST, Routes } from "discord.js";
 import { DiscordBotError } from "@/domain/reuse/discord_error";
 import { Config } from "@/configs/config";
 import { EventHandler } from "@/configs/handler";
@@ -42,16 +35,16 @@ export class Bot {
       try {
         // Handle slash commands
         if (interaction.isChatInputCommand()) {
-          const ev = this.handler.handler.get(interaction.commandName);
+          const ev = this.handler.commandHandler.get(interaction.commandName);
           if (!ev) return;
-          await ev.handleCommand(interaction as any);
+          await ev.handleCommand(interaction);
           return;
         }
 
         if (interaction.isModalSubmit()) {
           const ev = this.handler.modalHandler.get(interaction.customId);
           if (!ev) return;
-          await ev.handleModalSubmit(interaction as ModalSubmitInteraction);
+          await ev.handleModalSubmit(interaction);
           return;
         }
 
@@ -63,7 +56,7 @@ export class Bot {
           await ev.handleAutocomplete(interaction);
           return;
         }
-      } catch (err: any) {
+      } catch (err) {
         if (err instanceof DiscordBotError) {
           console.warn(
             `Handled DiscordBotError: ${err.title} - ${err.message}`
@@ -99,7 +92,7 @@ export class Bot {
   async registerCommands() {
     const definitions: any[] = [];
 
-    this.handler.handler.forEach((value, key) => {
+    this.handler.commandHandler.forEach((value, key) => {
       definitions.push(value.getSlashCommand().toJSON());
       console.log(`Registered command: /${key}`);
     });
