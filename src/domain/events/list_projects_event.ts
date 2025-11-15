@@ -1,4 +1,7 @@
-import { IEvent, DiscordInteraction } from "@/domain/reuse/event_interface";
+import {
+  ICommand,
+  ChatInputCommandInteraction,
+} from "@/domain/reuse/event_interface";
 import { InfoCard, ErrorCard } from "../reuse/cards";
 import { ProjectDatabase } from "@/domain/databases/project_database";
 import {
@@ -8,14 +11,14 @@ import {
 } from "discord.js";
 import dayjs from "dayjs";
 
-export default class ListProjectsEvent implements IEvent {
+export default class ListProjectsEvent implements ICommand {
   private projectDb: ProjectDatabase;
 
   constructor(projectDb: ProjectDatabase) {
     this.projectDb = projectDb;
   }
 
-  async handleInteraction(interaction: DiscordInteraction): Promise<void> {
+  async handleCommand(interaction: ChatInputCommandInteraction): Promise<void> {
     if (!interaction.isChatInputCommand()) {
       console.log("Invalid Interaction");
       return;

@@ -1,4 +1,7 @@
-import { IEvent, DiscordInteraction } from "@/domain/reuse/event_interface";
+import {
+  ICommand,
+  ChatInputCommandInteraction,
+} from "@/domain/reuse/event_interface";
 import {
   ChatInputCommandInteraction,
   MessageFlags,
@@ -6,8 +9,8 @@ import {
 } from "discord.js";
 import { ErrorCard } from "../reuse/cards";
 
-export default class PingEvent implements IEvent {
-  async handleInteraction(interaction: DiscordInteraction): Promise<void> {
+export default class PingEvent implements ICommand {
+  async handleCommand(interaction: ChatInputCommandInteraction): Promise<void> {
     if (!interaction.isChatInputCommand()) {
       console.log("Invalid Interaction");
       return;
@@ -21,7 +24,7 @@ export default class PingEvent implements IEvent {
         embeds: [
           ErrorCard.getErrorCard(
             "No message provided",
-            "Please provide a message to ping.",
+            "Please provide a message to ping."
           ),
         ],
         flags: MessageFlags.Ephemeral,
@@ -40,7 +43,7 @@ export default class PingEvent implements IEvent {
         option
           .setName("message")
           .setDescription("Enter a message")
-          .setRequired(false),
+          .setRequired(false)
       );
   }
 }

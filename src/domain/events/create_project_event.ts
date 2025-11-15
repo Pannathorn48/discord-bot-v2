@@ -1,8 +1,4 @@
-import {
-  DiscordInteraction,
-  IEvent,
-  IModal,
-} from "@/domain/reuse/event_interface";
+import { ICommand, IModal } from "@/domain/reuse/event_interface";
 import {
   ChatInputCommandInteraction,
   LabelBuilder,
@@ -18,7 +14,7 @@ import { CreateProjectRequest } from "../requests/project_requests";
 import { CreateProjectService } from "../services/create_project_service";
 import { DiscordBotError } from "../reuse/discord_error";
 
-export class CreateProjectEvent implements IEvent, IModal {
+export class CreateProjectEvent implements ICommand, IModal {
   private createProjectService: CreateProjectService;
 
   constructor(service: CreateProjectService) {
@@ -26,21 +22,10 @@ export class CreateProjectEvent implements IEvent, IModal {
   }
 
   getModalID(): string {
-    return this.getSlashCommand().toJSON().name;
+    return "new-project";
   }
-  async handleInteraction(interaction: DiscordInteraction): Promise<void> {
-    if (interaction.isChatInputCommand()) {
-      const chat = interaction as ChatInputCommandInteraction;
-      await chat.showModal(await this.getModal());
-      return;
-    }
-
-    if (interaction.isModalSubmit()) {
-      await this.handleModalSubmit(interaction as ModalSubmitInteraction);
-      return;
-    }
-
-    console.log("Invalid Interaction");
+  async handleCommand(interaction: ChatInputCommandInteraction): Promise<void> {
+    await interaction.showModal(await this.getModal());
   }
 
   async handleModalSubmit(interaction: ModalSubmitInteraction): Promise<void> {

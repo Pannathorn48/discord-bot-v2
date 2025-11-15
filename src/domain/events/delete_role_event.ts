@@ -1,4 +1,7 @@
-import { IEvent, DiscordInteraction } from "@/domain/reuse/event_interface";
+import {
+  ICommand,
+  ChatInputCommandInteraction,
+} from "@/domain/reuse/event_interface";
 import { ErrorCard, SuccessCard } from "../reuse/cards";
 import {
   ActionRowBuilder,
@@ -11,8 +14,8 @@ import {
   SlashCommandBuilder,
 } from "discord.js";
 
-export default class DeleteRoleEvent implements IEvent {
-  async handleInteraction(interaction: DiscordInteraction): Promise<void> {
+export default class DeleteRoleEvent implements ICommand {
+  async handleCommand(interaction: ChatInputCommandInteraction): Promise<void> {
     if (!interaction.isChatInputCommand()) {
       console.log("Invalid Interaction");
       return;
@@ -25,7 +28,7 @@ export default class DeleteRoleEvent implements IEvent {
         embeds: [
           ErrorCard.getErrorCard(
             "Guild required",
-            "This command must be run in a server (not in DMs).",
+            "This command must be run in a server (not in DMs)."
           ),
         ],
       });
@@ -38,7 +41,7 @@ export default class DeleteRoleEvent implements IEvent {
         embeds: [
           ErrorCard.getErrorCard(
             "Role not found",
-            "Please provide a valid role to delete.",
+            "Please provide a valid role to delete."
           ),
         ],
       });
@@ -58,7 +61,7 @@ export default class DeleteRoleEvent implements IEvent {
 
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
       confirmButton,
-      cancelButton,
+      cancelButton
     );
 
     await chat.reply({
@@ -69,7 +72,7 @@ export default class DeleteRoleEvent implements IEvent {
           [
             { name: "🆔 Role ID", value: role.id, inline: true },
             { name: "📛 Role name", value: role.name, inline: true },
-          ],
+          ]
         ),
       ],
       components: [row],
@@ -96,7 +99,7 @@ export default class DeleteRoleEvent implements IEvent {
           const disabledRow =
             new ActionRowBuilder<ButtonBuilder>().addComponents(
               confirmButton.setDisabled(true),
-              cancelButton.setDisabled(true),
+              cancelButton.setDisabled(true)
             );
 
           await chat.editReply({
@@ -113,13 +116,13 @@ export default class DeleteRoleEvent implements IEvent {
           const disabledRow =
             new ActionRowBuilder<ButtonBuilder>().addComponents(
               confirmButton.setDisabled(true),
-              cancelButton.setDisabled(true),
+              cancelButton.setDisabled(true)
             );
           await chat.editReply({
             embeds: [
               ErrorCard.getErrorCard(
                 "Failed to delete role",
-                "Make sure the bot has the Manage Roles permission and its role is higher than the target role.",
+                "Make sure the bot has the Manage Roles permission and its role is higher than the target role."
               ),
             ],
             components: [disabledRow],
@@ -129,7 +132,7 @@ export default class DeleteRoleEvent implements IEvent {
         // Cancelled by user
         const disabledRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
           confirmButton.setDisabled(true),
-          cancelButton.setDisabled(true),
+          cancelButton.setDisabled(true)
         );
         await chat.editReply({
           embeds: [
@@ -142,13 +145,13 @@ export default class DeleteRoleEvent implements IEvent {
       // Timeout or other error waiting for interaction
       const disabledRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
         confirmButton.setDisabled(true),
-        cancelButton.setDisabled(true),
+        cancelButton.setDisabled(true)
       );
       await chat.editReply({
         embeds: [
           ErrorCard.getErrorCard(
             "Timed out",
-            "No confirmation received — action cancelled.",
+            "No confirmation received — action cancelled."
           ),
         ],
         components: [disabledRow],
@@ -161,7 +164,7 @@ export default class DeleteRoleEvent implements IEvent {
       .setName("delete-role")
       .setDescription("Delete a role from the server")
       .addRoleOption((opt) =>
-        opt.setName("role").setDescription("Role to delete").setRequired(true),
+        opt.setName("role").setDescription("Role to delete").setRequired(true)
       );
   }
 }

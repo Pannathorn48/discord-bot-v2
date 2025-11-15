@@ -1,30 +1,26 @@
-import {
-  DiscordInteraction,
-  IEvent,
-  IModal,
-} from "@/domain/reuse/event_interface";
+import { ICommand, IModal } from "@/domain/reuse/event_interface";
 import {
   ChatInputCommandInteraction,
   LabelBuilder,
   ModalBuilder,
   ModalMessageModalSubmitInteraction,
   ModalSubmitInteraction,
-  SelectMenuBuilder,
   SlashCommandBuilder,
   StringSelectMenuBuilder,
+  StringSelectMenuOptionBuilder,
   TextInputBuilder,
   TextInputStyle,
 } from "discord.js";
 import { CreateTaskService } from "../services/create_task_service";
 
-export class CreateTaskEvent implements IEvent, IModal {
+export class CreateTaskEvent implements ICommand, IModal {
   private createTaskService: CreateTaskService;
 
   constructor(service: CreateTaskService) {
     this.createTaskService = service;
   }
   getModalID(): string {
-    return this.getSlashCommand().toJSON().name;
+    return "new-task";
   }
   async getModal(...args: any[]): Promise<ModalBuilder> {
     if (!args || args.length != 1) {
@@ -41,16 +37,14 @@ export class CreateTaskEvent implements IEvent, IModal {
       .setStringSelectMenuComponent(
         new StringSelectMenuBuilder()
           .setCustomId("project-selected")
-          .setOptions(
+          .addOptions(
             project.map((p) => {
-              return {
-                label: p.name,
-                value: p.id as string,
-                description: p.description || "No description",
-              };
+              return new StringSelectMenuOptionBuilder()
+                .setLabel(p.name)
+                .setValue(p.id as string)
+                .setDescription(p.description || "No description");
             })
           )
-          .setPlaceholder("Select a project for the task")
       );
 
     const taskNameInput = new LabelBuilder()
@@ -97,19 +91,8 @@ export class CreateTaskEvent implements IEvent, IModal {
     await interaction.reply("Task creation is not yet implemented.");
     return;
   }
-  async handleInteraction(interaction: DiscordInteraction): Promise<void> {
-    if (interaction.isChatInputCommand()) {
-      const chat = interaction as ChatInputCommandInteraction;
-      await chat.showModal(await this.getModal(interaction.guildId));
-    }
-
-    if (interaction.isModalSubmit()) {
-      await this.handleModalSubmit(interaction as ModalSubmitInteraction);
-      return;
-    }
-
-    console.log("Invalid Interaction");
-    return;
+  async handleCommand(interaction: ChatInputCommandInteraction): Promise<void> {
+    await interaction.showModal(await this.getModal(interaction.guildId));
   }
   getSlashCommand() {
     return new SlashCommandBuilder()

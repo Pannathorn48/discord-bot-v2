@@ -1,4 +1,8 @@
-import { IAutocomplete, IEvent, IModal } from "@/domain/reuse/event_interface";
+import {
+  IAutocomplete,
+  ICommand,
+  IModal,
+} from "@/domain/reuse/event_interface";
 import PingEvent from "@/domain/events/ping_event";
 import { CreateProjectEvent } from "@/domain/events/create_project_event";
 import DeleteRoleEvent from "@/domain/events/delete_role_event";
@@ -17,11 +21,11 @@ import { group } from "console";
 
 export class EventHandler {
   private static instance: EventHandler | null = null;
-  public handler: Map<string, IEvent>;
+  public handler: Map<string, ICommand>;
   public modalHandler: Map<string, IModal> = new Map();
   public autoCompleteHandler: Map<string, IAutocomplete> = new Map();
   private constructor() {
-    this.handler = new Map<string, IEvent>();
+    this.handler = new Map<string, ICommand>();
 
     const prismaClient = new PrismaClient();
 

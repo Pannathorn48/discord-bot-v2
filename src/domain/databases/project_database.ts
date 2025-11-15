@@ -45,4 +45,21 @@ export class ProjectDatabase {
     });
     return project;
   }
+
+  async deleteProjectById(projectId: string): Promise<void> {
+    await this.prisma.project.delete({
+      where: {
+        id: projectId,
+      },
+    });
+  }
+
+  async getProjectById(projectId: string): Promise<Project | null> {
+    const project = await this.prisma.project.findUnique({
+      where: {
+        id: projectId,
+      },
+    });
+    return project;
+  }
 }

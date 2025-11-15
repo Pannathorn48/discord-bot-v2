@@ -1,11 +1,8 @@
-import {
-  DiscordInteraction,
-  IEvent,
-  IModal,
-} from "@/domain/reuse/event_interface";
+import { ICommand, IModal } from "@/domain/reuse/event_interface";
 import {
   ChatInputCommandInteraction,
   LabelBuilder,
+  MessageFlags,
   ModalBuilder,
   ModalSubmitInteraction,
   SlashCommandBuilder,
@@ -14,25 +11,33 @@ import {
   TextInputStyle,
 } from "discord.js";
 import { CreateGroupService } from "../services/create_group_service";
+import { DiscordBotError } from "../reuse/discord_error";
+import { ErrorCard } from "../reuse/cards";
 
-export class CreateGroupEvent implements IEvent, IModal {
+export class CreateGroupEvent implements ICommand, IModal {
   private createGroupService: CreateGroupService;
 
   constructor(service: CreateGroupService) {
     this.createGroupService = service;
   }
   getModalID(): string {
-    return this.getSlashCommand().toJSON().name;
+    return "new-group";
   }
   async getModal(...args: any[]): Promise<ModalBuilder> {
     if (args.length != 1 || !args[0]) {
       throw new Error("Invalid arguments for getModal");
     }
+    const project = await this.createGroupService.getProjectsInGuild(args[0]);
+
+    if (project.length === 0 || !project) {
+      throw new DiscordBotError(
+        "No Projects Found",
+        "Please create a project before creating a group."
+      );
+    }
     const modal = new ModalBuilder()
       .setCustomId(this.getModalID())
       .setTitle("Create New Group");
-
-    const project = await this.createGroupService.getProjectsInGuild(args[0]);
 
     const projectSelectedInput = new LabelBuilder()
       .setLabel("Select Project")
@@ -41,7 +46,7 @@ export class CreateGroupEvent implements IEvent, IModal {
         new StringSelectMenuBuilder()
           .setCustomId("project-selected")
           .setRequired(true)
-          .addOptions(
+          .setOptions(
             project.map((p) => {
               return {
                 label: p.name,
@@ -98,20 +103,8 @@ export class CreateGroupEvent implements IEvent, IModal {
       content: "Group creation is not yet implemented.",
     });
   }
-  async handleInteraction(interaction: DiscordInteraction): Promise<void> {
-    if (interaction.isChatInputCommand()) {
-      const chat = interaction as ChatInputCommandInteraction;
-      await chat.showModal(await this.getModal(interaction.guildId));
-      return;
-    }
-
-    if (interaction.isModalSubmit()) {
-      await this.handleModalSubmit(interaction as ModalSubmitInteraction);
-      return;
-    }
-
-    console.log("Unhandled interaction type in CreateGroupEvent");
-    return;
+  async handleCommand(interaction: ChatInputCommandInteraction): Promise<void> {
+    await interaction.showModal(await this.getModal(interaction.guildId));
   }
   getSlashCommand() {
     return new SlashCommandBuilder()

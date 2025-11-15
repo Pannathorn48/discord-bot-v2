@@ -44,7 +44,7 @@ export class Bot {
         if (interaction.isChatInputCommand()) {
           const ev = this.handler.handler.get(interaction.commandName);
           if (!ev) return;
-          await ev.handleInteraction(interaction as any);
+          await ev.handleCommand(interaction as any);
           return;
         }
 

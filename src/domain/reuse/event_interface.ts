@@ -7,13 +7,8 @@ import {
   SlashCommandOptionsOnlyBuilder,
 } from "discord.js";
 
-export type DiscordInteraction =
-  | AutocompleteInteraction
-  | ChatInputCommandInteraction
-  | ModalSubmitInteraction;
-
-export interface IEvent {
-  handleInteraction(interaction: DiscordInteraction): Promise<void>;
+export interface ICommand {
+  handleCommand(interaction: ChatInputCommandInteraction): Promise<void>;
   getSlashCommand(): any;
 }
 
