@@ -25,7 +25,7 @@ model Project {
   name        String
   guildId     String
   status      PrjectStatus @default(OPEN)
-  roleId      String
+  roleId      String       @unique
   description String?
   deadline    DateTime
   createdAt   DateTime     @default(now())
@@ -34,12 +34,24 @@ model Project {
 }
 
 model Group {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   name        String
-  project     Project  @relation("ProjectGroup", fields: [projectId], references: [id], onDelete: Cascade)
+  project     Project   @relation("ProjectGroup", fields: [projectId], references: [id], onDelete: Cascade)
+  deadline    DateTime?
   description String?
   projectId   String
-  roleId      String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  roleId      String    @unique
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  tasks       Task[]    @relation("GroupTask")
+}
+
+model Task {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  deadline    DateTime?
+  userId      String
+  group       Group     @relation("GroupTask", fields: [groupId], references: [id], onDelete: Cascade)
+  groupId     String
 }

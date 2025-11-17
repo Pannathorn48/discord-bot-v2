@@ -1,6 +1,7 @@
-import { ICommand } from "@/domain/reuse/event_interface";
-import { InfoCard, ErrorCard } from "../reuse/cards";
+import { IAutocomplete, ICommand } from "@/domain/reuse/event_interface";
+import { InfoCard, ErrorCard } from "@/domain/reuse/cards";
 import {
+  AutocompleteInteraction,
   ChatInputCommandInteraction,
   MessageFlags,
   RESTPostAPIApplicationCommandsJSONBody,
@@ -8,12 +9,16 @@ import {
 } from "discord.js";
 import dayjs from "dayjs";
 import { ProjectService } from "@/domain/services/project_service";
+import { DiscordBotError } from "@/domain/reuse/discord_error";
 
-export default class ListProjectsEvent implements ICommand {
+export default class ListProjectsEvent implements ICommand, IAutocomplete {
   private projectService: ProjectService;
 
   constructor(projectDb: ProjectService) {
     this.projectService = projectDb;
+  }
+  getAutocompleteID(): string {
+    return "list-projects";
   }
 
   async handleCommand(interaction: ChatInputCommandInteraction): Promise<void> {
@@ -37,9 +42,11 @@ export default class ListProjectsEvent implements ICommand {
       return;
     }
 
+    const statusFilter = chat.options.getString("status") ?? undefined;
     try {
       const projects = await this.projectService.getProjectsInGuild(
-        chat.guildId
+        chat.guildId,
+        statusFilter
       );
 
       if (!projects || projects.length === 0) {
@@ -91,6 +98,13 @@ export default class ListProjectsEvent implements ICommand {
         });
       }
     } catch (err) {
+      if (err instanceof DiscordBotError) {
+        await chat.reply({
+          embeds: [ErrorCard.getErrorCardFromError(err)],
+          flags: MessageFlags.Ephemeral,
+        });
+        return;
+      }
       console.error("Failed to list projects:", err);
       await chat.reply({
         embeds: [
@@ -108,6 +122,32 @@ export default class ListProjectsEvent implements ICommand {
     return new SlashCommandBuilder()
       .setName("list-projects")
       .setDescription("List all projects for this server")
+      .addStringOption((option) => {
+        return option
+          .setName("status")
+          .setDescription("Optional status filter for project status")
+          .setRequired(false)
+          .setAutocomplete(true);
+      })
       .toJSON();
+  }
+
+  async handleAutocomplete(
+    interaction: AutocompleteInteraction
+  ): Promise<void> {
+    const focusedOption = interaction.options.getFocused(true);
+    if (focusedOption.name === "status") {
+      const statuses = ["ALL", "OPEN", "CLOSED", "DONE"];
+      const filtered = statuses.filter((status) =>
+        status.startsWith(focusedOption.value.toUpperCase())
+      );
+
+      await interaction.respond(
+        filtered.map((status) => ({
+          name: status,
+          value: status,
+        }))
+      );
+    }
   }
 }

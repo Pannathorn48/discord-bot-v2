@@ -14,4 +14,41 @@ export class GroupDatabase {
     });
     return groups;
   }
+
+  public async createGroup(req: {
+    name: string;
+    projectId: string;
+    roleId: string;
+    description?: string | undefined;
+    deadline?: Date | undefined;
+  }): Promise<Group> {
+    const group = await this.prisma.group.create({
+      data: {
+        name: req.name,
+        projectId: req.projectId,
+        roleId: req.roleId,
+        description: req.description || null,
+        deadline: req.deadline || null,
+      },
+    });
+    return group;
+  }
+
+  public async getGroupByProjectID(projectId: string): Promise<Group[]> {
+    const groups: Group[] = await this.prisma.group.findMany({
+      where: {
+        projectId: projectId,
+      },
+    });
+    return groups;
+  }
+
+  public async getGroupByID(groupId: string): Promise<Group | null> {
+    const group: Group | null = await this.prisma.group.findUnique({
+      where: {
+        id: groupId,
+      },
+    });
+    return group;
+  }
 }

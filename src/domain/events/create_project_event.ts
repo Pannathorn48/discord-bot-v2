@@ -156,7 +156,7 @@ export class CreateProjectEvent implements ICommand, IModal {
       .setTextInputComponent(projectRole);
 
     const projectRoleColorLabel = new LabelBuilder()
-      .setLabel("Role color")
+      .setLabel("Role color (Optional)")
       .setTextInputComponent(
         new TextInputBuilder()
           .setCustomId("project-role-color")
@@ -178,9 +178,9 @@ export class CreateProjectEvent implements ICommand, IModal {
     modal.addLabelComponents(
       projectNameLabel,
       projectDescriptionLabel,
+      deadlineLabel,
       projectRoleLabel,
-      projectRoleColorLabel,
-      deadlineLabel
+      projectRoleColorLabel
     );
 
     return modal;

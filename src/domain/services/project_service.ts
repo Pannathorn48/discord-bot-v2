@@ -3,7 +3,8 @@ import { DiscordBotError } from "@/domain/reuse/discord_error";
 import { CreateProjectRequest } from "@/domain/requests/project_requests";
 import { DiscordService } from "@/domain/services/discord_service";
 import { CreateDate } from "@/utils/date_utils";
-import { Project } from "@/generated/prisma/client";
+import { $Enums, Project } from "@/generated/prisma/client";
+import { isValidProjectStatus } from "@/utils/enum_utils";
 
 export class ProjectService {
   private projectDatabase: ProjectDatabase;
@@ -44,8 +45,21 @@ export class ProjectService {
     );
   }
 
-  async getProjectsInGuild(guildId: string): Promise<Project[]> {
-    return await this.projectDatabase.getProjectFromGuildId(guildId);
+  async getProjectsInGuild(
+    guildId: string,
+    status?: string
+  ): Promise<Project[]> {
+    if (status && status !== "ALL" && !isValidProjectStatus(status)) {
+      throw new DiscordBotError(
+        "Invalid Status",
+        `The status '${status}' is not valid. Valid statuses are: OPEN, CLOSED, DONE, ALL.`
+      );
+    }
+
+    return await this.projectDatabase.getProjectFromGuildId(
+      guildId,
+      status === "ALL" ? undefined : (status as $Enums.PrjectStatus)
+    );
   }
 
   async createProject(req: CreateProjectRequest): Promise<void> {

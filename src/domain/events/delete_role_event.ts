@@ -1,5 +1,5 @@
 import { ICommand } from "@/domain/reuse/event_interface";
-import { ErrorCard, SuccessCard } from "../reuse/cards";
+import { ErrorCard, SuccessCard } from "@/domain/reuse/cards";
 import {
   ActionRowBuilder,
   ButtonBuilder,

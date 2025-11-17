@@ -2,6 +2,7 @@ import { ICommand, IModal } from "@/domain/reuse/event_interface";
 import {
   ChatInputCommandInteraction,
   LabelBuilder,
+  MessageFlags,
   ModalBuilder,
   ModalSubmitInteraction,
   RESTPostAPIApplicationCommandsJSONBody,
@@ -12,13 +13,14 @@ import {
 } from "discord.js";
 import { DiscordBotError } from "@/domain/reuse/discord_error";
 import { GroupService } from "@/domain/services/group_service";
-import { ErrorCard } from "../reuse/cards";
+import { ErrorCard, SuccessCard } from "@/domain/reuse/cards";
+import { CreateGroupRequest } from "@/domain/requests/group_requests";
 
 export class CreateGroupEvent implements ICommand, IModal {
-  private createGroupService: GroupService;
+  private groupService: GroupService;
 
   constructor(service: GroupService) {
-    this.createGroupService = service;
+    this.groupService = service;
   }
   getModalID(): string {
     return "new-group";
@@ -27,7 +29,7 @@ export class CreateGroupEvent implements ICommand, IModal {
     if (args.length != 1 || !args[0]) {
       throw new Error("Invalid arguments for getModal");
     }
-    const project = await this.createGroupService.getProjectsInGuild(args[0]);
+    const project = await this.groupService.getProjectsInGuild(args[0]);
 
     if (project.length === 0 || !project) {
       throw new DiscordBotError(
@@ -79,6 +81,17 @@ export class CreateGroupEvent implements ICommand, IModal {
           .setRequired(false)
       );
 
+    const groupDeadline = new LabelBuilder()
+      .setLabel("Group Sub Deadline")
+      .setDescription("Enter the deadline for the group (DD/MM/YYYY) in CE")
+      .setTextInputComponent(
+        new TextInputBuilder()
+          .setCustomId("group-sub-deadline")
+          .setStyle(TextInputStyle.Short)
+          .setPlaceholder("e.g. 31/12/2026")
+          .setRequired(false)
+      );
+
     const groupRoleName = new LabelBuilder()
       .setLabel("Group Role Name")
       .setDescription("Enter the role name for the group")
@@ -87,25 +100,83 @@ export class CreateGroupEvent implements ICommand, IModal {
           .setCustomId("group-role-name")
           .setStyle(TextInputStyle.Short)
           .setPlaceholder("e.g. @Developers")
-          .setRequired(false)
+          .setRequired(true)
       );
 
     modal.addLabelComponents(
       projectSelectedInput,
       groupName,
       groupDescription,
+      groupDeadline,
       groupRoleName
     );
     return modal;
   }
   async handleModalSubmit(interaction: ModalSubmitInteraction): Promise<void> {
+    if (interaction.customId !== this.getModalID()) {
+      return;
+    }
+    const guildId = interaction.guildId;
+    if (!guildId) {
+      await interaction.reply({
+        embeds: [
+          ErrorCard.getErrorCard(
+            "Guild ID is required",
+            "Please run this command in a server."
+          ),
+        ],
+        flags: MessageFlags.Ephemeral,
+      });
+      return;
+    }
+    const req: CreateGroupRequest = {
+      guildId: guildId,
+      projectId:
+        interaction.fields.getStringSelectValues("project-selected")[0] ?? "",
+      groupName: interaction.fields.getTextInputValue("group-name"),
+      groupDescription:
+        interaction.fields.getTextInputValue("group-description"),
+      groupDeadline: interaction.fields.getTextInputValue("group-sub-deadline"),
+      groupRoleName: interaction.fields.getTextInputValue("group-role-name"),
+    };
+
+    try {
+      await this.groupService.createGroupInProject(req);
+    } catch (error) {
+      if (error instanceof DiscordBotError) {
+        await interaction.reply({
+          embeds: [ErrorCard.getErrorCardFromError(error)],
+          flags: MessageFlags.Ephemeral,
+        });
+        return;
+      }
+      throw error;
+    }
+
     await interaction.reply({
-      content: "Group creation is not yet implemented.",
+      embeds: [
+        SuccessCard.getSuccessCard(
+          "Group Created",
+          `The group **${req.groupName}** has been successfully created.`
+        ),
+      ],
     });
   }
   async handleCommand(interaction: ChatInputCommandInteraction): Promise<void> {
     if (interaction.guildId) {
-      await interaction.showModal(await this.getModal(interaction.guildId));
+      try {
+        await interaction.showModal(await this.getModal(interaction.guildId));
+        return;
+      } catch (error) {
+        if (error instanceof DiscordBotError) {
+          await interaction.reply({
+            embeds: [ErrorCard.getErrorCardFromError(error)],
+            flags: MessageFlags.Ephemeral,
+          });
+        } else {
+          throw error;
+        }
+      }
       return;
     } else {
       await interaction.reply({

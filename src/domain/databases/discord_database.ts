@@ -34,14 +34,10 @@ export class DiscordDatabase {
   ): Promise<Role> {
     const guild = await this.client.guilds.fetch(guildId);
     const guildFetched = await guild.fetch();
-    const role = await guildFetched.roles.create(
-      color
-        ? {
-            name: roleName,
-            colors: { primaryColor: color },
-          }
-        : { name: roleName }
-    );
+    const role = await guildFetched.roles.create({
+      name: roleName,
+      colors: { primaryColor: color ? color : "Random" },
+    });
     return role;
   }
 

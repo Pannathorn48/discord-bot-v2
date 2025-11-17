@@ -1,5 +1,5 @@
 import { DiscordDatabase } from "@/domain/databases/discord_database";
-import { DiscordBotError } from "../reuse/discord_error";
+import { DiscordBotError } from "@/domain/reuse/discord_error";
 import { HexColorString, Role } from "discord.js";
 
 export class DiscordService {

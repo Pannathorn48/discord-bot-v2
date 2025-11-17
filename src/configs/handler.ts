@@ -20,6 +20,7 @@ import { DiscordService } from "@/domain/services/discord_service";
 import { GroupService } from "@/domain/services/group_service";
 import { TaskService } from "@/domain/services/task_service";
 import { Client } from "discord.js";
+import { TaskDatabase } from "@/domain/databases/task_database";
 
 export class EventHandler {
   private static instance: EventHandler | null = null;
@@ -34,13 +35,22 @@ export class EventHandler {
     // For Databases
     const groupDatabase = new GroupDatabase(prismaClient);
     const projectDatabase = new ProjectDatabase(prismaClient);
+    const taskDatabase = new TaskDatabase(prismaClient);
     const discordDatabase = new DiscordDatabase(client);
 
     // For Services
     const discordService = new DiscordService(discordDatabase);
     const projectService = new ProjectService(projectDatabase, discordService);
-    const groupService = new GroupService(groupDatabase, projectDatabase);
-    const taskService = new TaskService(projectDatabase);
+    const groupService = new GroupService(
+      groupDatabase,
+      projectDatabase,
+      discordService
+    );
+    const taskService = new TaskService(
+      projectDatabase,
+      groupDatabase,
+      taskDatabase
+    );
 
     // For Events
     const pingEvent = new PingEvent();
@@ -94,6 +104,16 @@ export class EventHandler {
     this.autoCompleteHandler.set(
       deleteProjectEvent.getAutocompleteID(),
       deleteProjectEvent
+    );
+
+    this.autoCompleteHandler.set(
+      listProjectsEvent.getAutocompleteID(),
+      listProjectsEvent
+    );
+
+    this.autoCompleteHandler.set(
+      createTaskEvent.getAutocompleteID(),
+      createTaskEvent
     );
   }
 

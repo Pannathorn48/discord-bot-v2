@@ -1,5 +1,5 @@
-import { PrismaClient, Project } from "@/generated/prisma/client";
-import { CreateProjectDatabaseRequest } from "../requests/project_requests";
+import { $Enums, PrismaClient, Project } from "@/generated/prisma/client";
+import { CreateProjectDatabaseRequest } from "@/domain/requests/project_requests";
 
 export class ProjectDatabase {
   private prisma: PrismaClient;
@@ -7,11 +7,28 @@ export class ProjectDatabase {
     this.prisma = client;
   }
 
-  async getProjectFromGuildId(guildId: string): Promise<Project[]> {
-    const project: Project[] = await this.prisma.project.findMany({
+  async getProjectFromProjectId(projectId: string): Promise<Project | null> {
+    const project = await this.prisma.project.findUnique({
       where: {
-        guildId: guildId,
+        id: projectId,
       },
+    });
+    return project;
+  }
+
+  async getProjectFromGuildId(
+    guildId: string,
+    filteredStatus?: $Enums.PrjectStatus
+  ): Promise<Project[]> {
+    const whereClause: { guildId: string; status?: $Enums.PrjectStatus } = {
+      guildId: guildId,
+    };
+    if (filteredStatus) {
+      whereClause.status = filteredStatus;
+    }
+
+    const project: Project[] = await this.prisma.project.findMany({
+      where: whereClause,
     });
 
     return project;
