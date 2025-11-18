@@ -21,16 +21,6 @@ export class TaskService {
     this.taskDatabase = taskDatabase;
   }
 
-  async getProjectsInGuildFiltered(
-    guildId: string,
-    name: string
-  ): Promise<Project[]> {
-    return await this.projectDatabase.getProjectFileredByGuildeID(
-      guildId,
-      name
-    );
-  }
-
   async createTask(req: CreateTaskRequest): Promise<string> {
     const groupExists = await this.groupDatabase.getGroupByID(req.groupId);
     if (!groupExists) {

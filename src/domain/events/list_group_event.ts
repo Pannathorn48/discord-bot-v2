@@ -7,11 +7,15 @@ import {
   EmbedBuilder,
   RESTPostAPIApplicationCommandsJSONBody,
 } from "discord.js";
+import { projectAutocompleteOptions } from "../reuse/autocomplete";
+import { ProjectService } from "../services/project_service";
 
 export class ListGroupEvent implements ICommand, IAutocomplete {
+  private projectService: ProjectService;
   private groupService: GroupService;
-  constructor(service: GroupService) {
-    this.groupService = service;
+  constructor(groupService: GroupService, projectService: ProjectService) {
+    this.groupService = groupService;
+    this.projectService = projectService;
   }
   getAutocompleteID(): string {
     return "list-groups";
@@ -21,20 +25,7 @@ export class ListGroupEvent implements ICommand, IAutocomplete {
   ): Promise<void> {
     const focusedOption = interaction.options.getFocused(true);
     if (focusedOption.name === "project") {
-      const projects = await this.groupService.getProjectsInGuildFiltered(
-        interaction.guildId as string,
-        focusedOption.value
-      );
-
-      await interaction.respond(
-        projects.map((project) => ({
-          name: project.name,
-          description: project.description || "No description",
-          value: project.id as string,
-        }))
-      );
-
-      return;
+      await projectAutocompleteOptions(this.projectService, interaction);
     }
   }
   async handleCommand(interaction: ChatInputCommandInteraction): Promise<void> {

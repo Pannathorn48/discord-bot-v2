@@ -21,6 +21,8 @@ import { GroupService } from "@/domain/services/group_service";
 import { TaskService } from "@/domain/services/task_service";
 import { Client } from "discord.js";
 import { TaskDatabase } from "@/domain/databases/task_database";
+import { UserProjectDatabase } from "@/domain/databases/user_project_database";
+import { AssignProjectEvent } from "@/domain/events/assign_project_event";
 
 export class EventHandler {
   private static instance: EventHandler | null = null;
@@ -37,10 +39,15 @@ export class EventHandler {
     const projectDatabase = new ProjectDatabase(prismaClient);
     const taskDatabase = new TaskDatabase(prismaClient);
     const discordDatabase = new DiscordDatabase(client);
+    const userProjectDatabase = new UserProjectDatabase(prismaClient);
 
     // For Services
     const discordService = new DiscordService(discordDatabase);
-    const projectService = new ProjectService(projectDatabase, discordService);
+    const projectService = new ProjectService(
+      projectDatabase,
+      discordService,
+      userProjectDatabase
+    );
     const groupService = new GroupService(
       groupDatabase,
       projectDatabase,
@@ -58,9 +65,10 @@ export class EventHandler {
     const listProjectsEvent = new ListProjectsEvent(projectService);
     const deleteRoleEvent = new DeleteRoleEvent();
     const createGroupEvent = new CreateGroupEvent(groupService);
-    const createTaskEvent = new CreateTaskEvent(taskService);
+    const createTaskEvent = new CreateTaskEvent(taskService, projectService);
     const deleteProjectEvent = new DeleteProjectEvent(projectService);
-    const listGroupEvent = new ListGroupEvent(groupService);
+    const listGroupEvent = new ListGroupEvent(groupService, projectService);
+    const assignProjectEvent = new AssignProjectEvent(projectService);
 
     this.commandHandler.set(pingEvent.getSlashCommand().name, pingEvent);
     this.commandHandler.set(
@@ -90,6 +98,16 @@ export class EventHandler {
       deleteProjectEvent
     );
 
+    this.commandHandler.set(
+      listGroupEvent.getSlashCommand().name,
+      listGroupEvent
+    );
+
+    this.commandHandler.set(
+      assignProjectEvent.getSlashCommand().name,
+      assignProjectEvent
+    );
+
     // for modal handlers
     this.modalHandler.set(createProjectEvent.getModalID(), createProjectEvent);
     this.modalHandler.set(createTaskEvent.getModalID(), createTaskEvent);
@@ -114,6 +132,11 @@ export class EventHandler {
     this.autoCompleteHandler.set(
       createTaskEvent.getAutocompleteID(),
       createTaskEvent
+    );
+
+    this.autoCompleteHandler.set(
+      assignProjectEvent.getAutocompleteID(),
+      assignProjectEvent
     );
   }
 

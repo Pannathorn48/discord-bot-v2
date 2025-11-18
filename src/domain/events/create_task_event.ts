@@ -19,14 +19,18 @@ import {
   TextInputStyle,
 } from "discord.js";
 import { TaskService } from "@/domain/services/task_service";
-import { DiscordBotError } from "../reuse/discord_error";
-import { ErrorCard } from "../reuse/cards";
+import { DiscordBotError } from "@/domain/reuse/discord_error";
+import { ErrorCard } from "@/domain/reuse/cards";
+import { projectAutocompleteOptions } from "@/domain/reuse/autocomplete";
+import { ProjectService } from "@/domain/services/project_service";
 
 export class CreateTaskEvent implements ICommand, IModal, IAutocomplete {
   private taskService: TaskService;
+  private projectService: ProjectService;
 
-  constructor(service: TaskService) {
+  constructor(service: TaskService, projectService: ProjectService) {
     this.taskService = service;
+    this.projectService = projectService;
   }
   getAutocompleteID(): string {
     return "new-task";
@@ -35,31 +39,8 @@ export class CreateTaskEvent implements ICommand, IModal, IAutocomplete {
     interaction: AutocompleteInteraction
   ): Promise<void> {
     const focusedOption = interaction.options.getFocused(true);
-    console.log("Handling autocomplete for create task:", focusedOption);
     if (focusedOption.name === "project") {
-      const focused = interaction.options.getFocused();
-      const guildId = interaction.guildId;
-
-      if (!guildId) {
-        await interaction.respond([]);
-        return;
-      }
-
-      const query = focused ? String(focused) : "";
-
-      const projects = await this.taskService.getProjectsInGuildFiltered(
-        guildId,
-        query
-      );
-
-      const choices = projects.map((project) => {
-        return {
-          name: project.name,
-          value: project.id as string,
-        };
-      });
-
-      await interaction.respond(choices.slice(0, 25));
+      projectAutocompleteOptions(this.projectService, interaction);
     }
   }
   getModalID(): string {

@@ -5,16 +5,20 @@ import { DiscordService } from "@/domain/services/discord_service";
 import { CreateDate } from "@/utils/date_utils";
 import { $Enums, Project } from "@/generated/prisma/client";
 import { isValidProjectStatus } from "@/utils/enum_utils";
+import { UserProjectDatabase } from "@/domain/databases/user_project_database";
 
 export class ProjectService {
   private projectDatabase: ProjectDatabase;
   private discordService: DiscordService;
+  private userProjectDatabase: UserProjectDatabase;
 
   constructor(
     projectDatabase: ProjectDatabase,
-    discordService: DiscordService
+    discordService: DiscordService,
+    userProjectDatabase: UserProjectDatabase
   ) {
     this.projectDatabase = projectDatabase;
+    this.userProjectDatabase = userProjectDatabase;
     this.discordService = discordService;
   }
 
@@ -76,5 +80,38 @@ export class ProjectService {
       description: req.projectDescription || null,
       deadline: deadline,
     });
+  }
+
+  async assignProjectToUser(
+    projectId: string,
+    userId: string
+  ): Promise<Project> {
+    const project = await this.projectDatabase.getProjectById(projectId);
+    if (!project) {
+      throw new DiscordBotError(
+        "Project Not Found",
+        "The specified project does not exist."
+      );
+    }
+
+    const existingAssignment =
+      await this.userProjectDatabase.getUserProjectsByUserIDAndProjectID(
+        userId,
+        projectId
+      );
+
+    if (existingAssignment) {
+      throw new DiscordBotError(
+        "Assignment Already Exists",
+        "The user is already assigned to this project."
+      );
+    }
+
+    await this.userProjectDatabase.createUserProject({
+      userId: userId,
+      projectId: projectId,
+    });
+
+    return project;
   }
 }

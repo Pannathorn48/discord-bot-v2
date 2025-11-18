@@ -6,14 +6,14 @@ export class UserProjectDatabase {
     this.client = client;
   }
 
-  public async createUserProject(
-    userId: string,
-    projectId: string
-  ): Promise<void> {
+  public async createUserProject(req: {
+    userId: string;
+    projectId: string;
+  }): Promise<void> {
     await this.client.userProject.create({
       data: {
-        userId: userId,
-        projectId: projectId,
+        userId: req.userId,
+        projectId: req.projectId,
       },
     });
   }

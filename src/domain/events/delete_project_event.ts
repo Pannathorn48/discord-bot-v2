@@ -9,6 +9,7 @@ import {
 import { DiscordBotError } from "@/domain/reuse/discord_error";
 import { ErrorCard, SuccessCard } from "@/domain/reuse/cards";
 import { ProjectService } from "@/domain/services/project_service";
+import { projectAutocompleteOptions } from "../reuse/autocomplete";
 
 export class DeleteProjectEvent implements ICommand, IAutocomplete {
   private deleteProjectService: ProjectService;
@@ -21,30 +22,7 @@ export class DeleteProjectEvent implements ICommand, IAutocomplete {
   async handleAutocomplete(
     interaction: AutocompleteInteraction
   ): Promise<void> {
-    const focused = interaction.options.getFocused();
-    const guildId = interaction.guildId;
-
-    if (!guildId) {
-      await interaction.respond([]);
-      return;
-    }
-
-    const query = focused ? String(focused) : "";
-
-    const projects = await this.deleteProjectService.getProjectsInGuildAndName(
-      guildId,
-      query
-    );
-
-    await interaction.respond(
-      projects.map((p) => {
-        return {
-          name: p.name,
-          description: p.description || "No description",
-          value: p.id as string,
-        };
-      })
-    );
+    await projectAutocompleteOptions(this.deleteProjectService, interaction);
   }
   async handleCommand(interaction: ChatInputCommandInteraction): Promise<void> {
     const projectId = interaction.options.getString("project", true);
