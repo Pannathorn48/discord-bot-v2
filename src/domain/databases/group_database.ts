@@ -1,4 +1,4 @@
-import { Group, PrismaClient } from "@/generated/prisma/client";
+import { Group, PrismaClient, UserGroup } from "@/generated/prisma/client";
 
 export class GroupDatabase {
   private prisma: PrismaClient;
@@ -50,5 +50,16 @@ export class GroupDatabase {
       },
     });
     return group;
+  }
+
+  public async getGroupByUserID(userId: string): Promise<Group[]> {
+    const groups = await this.prisma.group.findMany({
+      where: {
+        userGroups: {
+          some: { userId },
+        },
+      },
+    });
+    return groups;
   }
 }

@@ -20,38 +20,65 @@ enum PrjectStatus {
   CLOSED
 }
 
+enum TaskStatus {
+  TO_DO
+  IN_PROGRESS
+  DONE
+}
+
 model Project {
-  id          String       @id @default(cuid())
-  name        String
-  guildId     String
-  status      PrjectStatus @default(OPEN)
-  roleId      String       @unique
-  description String?
-  deadline    DateTime
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  groups      Group[]      @relation("ProjectGroup")
+  id           String        @id @default(cuid())
+  name         String
+  guildId      String
+  status       PrjectStatus  @default(OPEN)
+  roleId       String        @unique
+  description  String?
+  deadline     DateTime
+  groups       Group[]       @relation("ProjectGroup")
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  userProjects UserProject[]
 }
 
 model Group {
-  id          String    @id @default(cuid())
+  id          String      @id @default(cuid())
   name        String
-  project     Project   @relation("ProjectGroup", fields: [projectId], references: [id], onDelete: Cascade)
+  project     Project     @relation("ProjectGroup", fields: [projectId], references: [id], onDelete: Cascade)
   deadline    DateTime?
   description String?
   projectId   String
-  roleId      String    @unique
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  tasks       Task[]    @relation("GroupTask")
+  roleId      String      @unique
+  tasks       Task[]      @relation("GroupTask")
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  userGroups  UserGroup[]
 }
 
 model Task {
-  id          String    @id @default(cuid())
+  id          String     @id @default(cuid())
   name        String
   description String?
+  taskStatus  TaskStatus @default(TO_DO)
   deadline    DateTime?
   userId      String
-  group       Group     @relation("GroupTask", fields: [groupId], references: [id], onDelete: Cascade)
+  group       Group      @relation("GroupTask", fields: [groupId], references: [id], onDelete: Cascade)
   groupId     String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model UserGroup {
+  userId  String
+  groupId String
+  group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@id([userId, groupId])
+}
+
+model UserProject {
+  userId    String
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@id([userId, projectId])
 }
